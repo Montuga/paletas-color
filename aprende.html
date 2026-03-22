@@ -535,6 +535,9 @@ main {
 .lesson-callout strong {
   color: var(--accent);
 }
+.lesson-visual {
+  margin: 1rem 0;
+}
 
 /* Color dot groups in lesson */
 .color-dots {
@@ -905,6 +908,74 @@ main {
 .results-btn-tool:hover { background: rgba(201,122,47,0.18); border-color: var(--accent); }
 
 /* ═══════════════════════════════════════════
+   DIFFICULTY SELECTOR
+═══════════════════════════════════════════ */
+#difficultySelect {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.diff-label {
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent);
+  border-left: 2px solid var(--accent);
+  padding-left: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.diff-options { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1rem 0; }
+.diff-btn {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.8rem 1.2rem; cursor: pointer;
+  font-family: var(--font); text-align: left; transition: all 0.15s;
+  min-width: 140px;
+}
+.diff-btn:hover { border-color: rgba(201,122,47,0.4); }
+.diff-btn.active { border-color: var(--accent); background: rgba(201,122,47,0.08); }
+.diff-btn.locked { opacity: 0.45; cursor: not-allowed; }
+.diff-num { font-size: 0.58rem; color: var(--accent); font-weight: 700; letter-spacing: 0.1em; }
+.diff-name { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+.diff-desc { font-size: 0.65rem; color: var(--text-muted); }
+.diff-lock { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
+#startQuizBtn {
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--accent); color: var(--white);
+  border: none; padding: 0.65rem 1.4rem;
+  border-radius: 3px; cursor: pointer;
+  font-family: var(--font); transition: background 0.2s;
+}
+#startQuizBtn:hover { background: var(--accent-dk); }
+
+/* Level dots on topic cards */
+.topic-level-dots {
+  display: flex; gap: 0.3rem; align-items: center;
+  margin-top: 0.15rem;
+}
+.topic-level-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid rgba(201,122,47,0.35);
+  background: transparent;
+  transition: background 0.3s;
+}
+.topic-level-dot.done { background: var(--accent); border-color: var(--accent); }
+.topic-level-dot.perfect { background: #f1c40f; border-color: #f1c40f; }
+
+/* Result level badge */
+.results-level-badge {
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: rgba(201,122,47,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(201,122,47,0.3);
+  padding: 0.25rem 0.7rem;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════
    BACK LINK SECTION
 ═══════════════════════════════════════════ */
 .back-section {
@@ -978,9 +1049,9 @@ main {
 
 <!-- NAV -->
 <nav class="site-nav" id="siteNav">
-  <a href="paletas.html" class="nav-logo">Paletas ·</a>
+  <a href="index.html" class="nav-logo">Paletas ·</a>
   <div class="nav-links">
-    <a href="paletas.html">← Herramienta</a>
+    <a href="index.html">← Herramienta</a>
   </div>
 </nav>
 
@@ -1025,9 +1096,31 @@ main {
       <!-- Injected by JS -->
     </div>
 
+    <div id="difficultySelect" style="display:none">
+      <div class="diff-label">Elige tu nivel</div>
+      <div class="diff-options" id="diffOptions">
+        <button class="diff-btn active" data-level="1">
+          <span class="diff-num">01</span>
+          <span class="diff-name">Básico</span>
+          <span class="diff-desc">Conceptos fundamentales</span>
+        </button>
+        <button class="diff-btn" data-level="2">
+          <span class="diff-num">02</span>
+          <span class="diff-name">Intermedio</span>
+          <span class="diff-desc">Aplicación y reconocimiento</span>
+        </button>
+        <button class="diff-btn" data-level="3">
+          <span class="diff-num">03</span>
+          <span class="diff-name">Avanzado</span>
+          <span class="diff-desc">Análisis y casos reales</span>
+        </button>
+      </div>
+      <button id="startQuizBtn" onclick="startQuizWithLevel()">Comenzar →</button>
+    </div>
+
     <div class="quiz-section" id="quizSection">
       <div class="quiz-header">
-        <div class="quiz-title">Quiz</div>
+        <div class="quiz-title" id="quizTitleLabel">Quiz</div>
         <div class="quiz-counter" id="quizCounter">Pregunta 1 de 5</div>
       </div>
       <div class="quiz-progress-bar">
@@ -1057,7 +1150,7 @@ main {
 
   <!-- ═══ BACK LINK ═══ -->
   <div class="back-section reveal" id="backSection">
-    <a href="paletas.html" class="back-btn-main">← Volver a la Herramienta</a>
+    <a href="index.html" class="back-btn-main">← Volver a la Herramienta</a>
   </div>
 
 </main>
@@ -1221,23 +1314,43 @@ function initScrollReveal() {
 
 // ══════════════════════════════════════════════
 // PROGRESS HELPERS
+// Progress format: { topicId: { 1: score, 2: score, 3: score } }
 // ══════════════════════════════════════════════
 function getProgress() {
   try {
     return JSON.parse(localStorage.getItem('aprende_progress') || '{}');
   } catch(e) { return {}; }
 }
-function setTopicScore(topicId, score) {
+function setTopicScore(topicId, level, score) {
   const p = getProgress();
-  p[topicId] = score;
+  if (!p[topicId] || typeof p[topicId] !== 'object') p[topicId] = {};
+  p[topicId][level] = score;
   localStorage.setItem('aprende_progress', JSON.stringify(p));
 }
-function getTopicScore(topicId) {
-  return getProgress()[topicId] || 0;
+function getTopicLevelScore(topicId, level) {
+  const p = getProgress();
+  if (!p[topicId] || typeof p[topicId] !== 'object') return 0;
+  return p[topicId][level] || 0;
+}
+function getTopicBestScore(topicId) {
+  const p = getProgress();
+  if (!p[topicId] || typeof p[topicId] !== 'object') return 0;
+  return Math.max(p[topicId][1] || 0, p[topicId][2] || 0, p[topicId][3] || 0);
 }
 function allZero() {
   const p = getProgress();
-  return TOPICS.every(t => !p[t.id] || p[t.id] === 0);
+  return TOPICS.every(t => {
+    const td = p[t.id];
+    if (!td || typeof td !== 'object') return true;
+    return (td[1] || 0) === 0 && (td[2] || 0) === 0 && (td[3] || 0) === 0;
+  });
+}
+// Returns whether a given level is unlocked for a topic
+function isLevelUnlocked(topicId, level) {
+  if (level === 1) return true;
+  if (level === 2) return getTopicLevelScore(topicId, 1) >= 3;
+  if (level === 3) return getTopicLevelScore(topicId, 2) >= 3;
+  return false;
 }
 
 // ══════════════════════════════════════════════
@@ -1251,7 +1364,7 @@ const TOPICS = [
     desc: 'Los colores primarios, secundarios y terciarios que forman la base de toda teoría cromática',
     visual: 'dots',
     dotColors: ['#c0392b','#f1c40f','#2980b9'],
-    toolLink: 'paletas.html#teoria',
+    toolLink: 'index.html#teoria',
     toolLabel: '→ Explorar la rueda en la herramienta'
   },
   {
@@ -1261,7 +1374,7 @@ const TOPICS = [
     desc: 'Complementaria, análoga, triádica y más: cómo los colores conviven en armonía',
     visual: 'bar',
     barColors: ['#2980b9','#e67e22'],
-    toolLink: 'paletas.html#teoria',
+    toolLink: 'index.html#teoria',
     toolLabel: '→ Generar armonías en la herramienta'
   },
   {
@@ -1271,7 +1384,7 @@ const TOPICS = [
     desc: 'La luz y la sombra como herramienta para crear profundidad y forma',
     visual: 'bar',
     barColors: ['#0a0a0a','#555555','#aaaaaa','#f5f5f5'],
-    toolLink: 'paletas.html#teoria',
+    toolLink: 'index.html#teoria',
     toolLabel: '→ Explorar valores en la herramienta'
   },
   {
@@ -1281,7 +1394,7 @@ const TOPICS = [
     desc: 'El sistema perceptualmente uniforme que mide color como lo ve el ojo humano',
     visual: 'dots',
     dotColors: ['#c0392b','#e67e22','#2980b9','#27ae60','#8e44ad'],
-    toolLink: 'paletas.html#teoria',
+    toolLink: 'index.html#teoria',
     toolLabel: '→ Explorar Munsell en la herramienta'
   },
   {
@@ -1291,7 +1404,7 @@ const TOPICS = [
     desc: 'Psicología, emociones y significados culturales de cada color',
     visual: 'bar',
     barColors: ['#e74c3c','#e67e22','#f1c40f','#27ae60','#2980b9','#8e44ad'],
-    toolLink: 'paletas.html#paleta',
+    toolLink: 'index.html#paleta',
     toolLabel: '→ Ver emociones de mi paleta'
   },
   {
@@ -1301,7 +1414,7 @@ const TOPICS = [
     desc: 'Los 7 contrastes de Itten y cómo usarlos para crear impacto visual',
     visual: 'bar',
     barColors: ['#0a0a0a','#f5f5f5','#e74c3c','#2980b9'],
-    toolLink: 'paletas.html#teoria',
+    toolLink: 'index.html#teoria',
     toolLabel: '→ Crear contrastes en la herramienta'
   }
 ];
@@ -1312,39 +1425,66 @@ const TOPICS = [
 const LESSONS = {
   rueda: {
     content: `
-      <h2>¿Qué es la rueda de color?</h2>
-      <p>La rueda de color es una representación visual del espectro cromático organizada de forma circular. Fue desarrollada por Isaac Newton en 1666 y es la herramienta fundamental de toda teoría del color.</p>
+      <h2>La Rueda de Color</h2>
 
-      <h3>Colores primarios (RYB)</h3>
-      <p>En el sistema tradicional de artistas (RYB), los tres colores primarios son Rojo, Amarillo y Azul. No pueden obtenerse mezclando otros colores — son la base de todo.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#c0392b"></div><span class="color-dot-label">Rojo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#f1c40f"></div><span class="color-dot-label">Amarillo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#2980b9"></div><span class="color-dot-label">Azul</span></div>
+      <h3>Historia y origen</h3>
+      <p>En 1666, Isaac Newton hizo pasar luz blanca a través de un prisma y descubrió que se descomponía en los colores del espectro visible. Para mostrar la continuidad entre el rojo y el violeta, cerró el espectro en un círculo — la primera rueda de color de la historia, publicada en su obra <em>Opticks</em> (1704). Pero Newton pensaba en luz, no en pigmentos.</p>
+
+      <p>En 1810, Johann Wolfgang von Goethe publicó <em>Zur Farbenlehre</em> (Teoría de los Colores), oponiéndose a Newton. Para Goethe, el color no era solo física — era una experiencia perceptual y emocional. Su rueda de 6 colores colocaba pares complementarios enfrentados, anticipando la psicología del color moderna.</p>
+
+      <p>En el Bauhaus (1919–1933), Johannes Itten desarrolló la rueda de 12 colores basada en los primarios RYB que usamos hoy en la enseñanza artística, publicada en <em>Kunst der Farbe</em> (1961). Es el estándar en la educación artística occidental.</p>
+
+      <h3>La ciencia de la luz y el color</h3>
+      <p>La luz visible es radiación electromagnética entre 380 y 700 nanómetros. El ojo humano tiene tres tipos de conos: S (sensibles al azul, ~445nm), M (verde, ~535nm) y L (rojo, ~565nm). El cerebro interpreta sus señales combinadas como colores. Este es el fundamento del modelo aditivo RGB: rojo + verde + azul luz = blanco.</p>
+
+      <div class="lesson-callout">Los pigmentos funcionan de forma opuesta: absorben ciertas longitudes de onda y reflejan otras. Un pigmento rojo absorbe azul y verde, y refleja rojo. Por eso la mezcla de pigmentos es SUSTRACTIVA — combinar todos los colores produce negro (se absorbe todo), no blanco.</div>
+
+      <h3>Sistemas de color: RYB, RGB y CMY</h3>
+      <p><strong>RYB (Rojo-Amarillo-Azul):</strong> El sistema tradicional de artistas. Funciona bien para hablar de armonías y relaciones de color, pero es impreciso para mezcla física. Mezclar azul y amarillo reales produce verde oliva, no un verde puro, porque los pigmentos no son espectralmente puros.</p>
+
+      <p><strong>CMY (Cian-Magenta-Amarillo):</strong> El modelo sustractivo moderno. Los primarios CMY son más precisos para mezcla de pigmentos. Cian + Magenta = azul-violeta limpio. Cian + Amarillo = verde brillante. Esta es la base del sistema de impresión CMYK.</p>
+
+      <p><strong>RGB (Rojo-Verde-Azul):</strong> El modelo aditivo de la luz. Pantallas, proyectores, fotografía digital. Mezclar R+G+B en igual intensidad = blanco puro.</p>
+
+      <h3>Colores primarios, secundarios y terciarios (RYB)</h3>
+      <div class="lesson-visual" style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0">
+        <div style="text-align:center">
+          <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem">
+            <div style="width:40px;height:40px;border-radius:3px;background:#c0392b"></div>
+            <div style="width:40px;height:40px;border-radius:3px;background:#f1c40f"></div>
+            <div style="width:40px;height:40px;border-radius:3px;background:#2980b9"></div>
+          </div>
+          <div style="font-size:0.65rem;color:#878c97;letter-spacing:0.08em;text-transform:uppercase">Primarios</div>
+        </div>
+        <div style="text-align:center">
+          <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem">
+            <div style="width:40px;height:40px;border-radius:3px;background:#e67e22"></div>
+            <div style="width:40px;height:40px;border-radius:3px;background:#27ae60"></div>
+            <div style="width:40px;height:40px;border-radius:3px;background:#8e44ad"></div>
+          </div>
+          <div style="font-size:0.65rem;color:#878c97;letter-spacing:0.08em;text-transform:uppercase">Secundarios</div>
+        </div>
+        <div style="text-align:center">
+          <div style="display:flex;gap:0.3rem;flex-wrap:wrap;max-width:140px;margin-bottom:0.5rem">
+            <div style="width:28px;height:28px;border-radius:3px;background:#e25822"></div>
+            <div style="width:28px;height:28px;border-radius:3px;background:#f0b429"></div>
+            <div style="width:28px;height:28px;border-radius:3px;background:#7dc55a"></div>
+            <div style="width:28px;height:28px;border-radius:3px;background:#1a7a4a"></div>
+            <div style="width:28px;height:28px;border-radius:3px;background:#3b5fc0"></div>
+            <div style="width:28px;height:28px;border-radius:3px;background:#a04080"></div>
+          </div>
+          <div style="font-size:0.65rem;color:#878c97;letter-spacing:0.08em;text-transform:uppercase">Terciarios</div>
+        </div>
       </div>
 
-      <h3>Colores secundarios</h3>
-      <p>Al mezclar dos primarios obtenemos los secundarios: Naranja (rojo + amarillo), Verde (amarillo + azul), Violeta (azul + rojo).</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e67e22"></div><span class="color-dot-label">Naranja</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#27ae60"></div><span class="color-dot-label">Verde</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#8e44ad"></div><span class="color-dot-label">Violeta</span></div>
-      </div>
+      <p>Los 6 colores terciarios nacen de mezclar un primario con un secundario adyacente: rojo-naranja, amarillo-naranja, amarillo-verde, azul-verde, azul-violeta, rojo-violeta. La rueda de 12 colores de Itten es la base de todas las armonías clásicas.</p>
 
-      <h3>Colores terciarios</h3>
-      <p>La mezcla de un primario con un secundario adyacente crea 6 colores terciarios: rojo-naranja, amarillo-naranja, amarillo-verde, azul-verde, azul-violeta, rojo-violeta.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e25822"></div><span class="color-dot-label">Rojo-Naranja</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#f39c12"></div><span class="color-dot-label">Amarillo-Naranja</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#a9d430"></div><span class="color-dot-label">Amarillo-Verde</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#1e8c6e"></div><span class="color-dot-label">Azul-Verde</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#4a4cc4"></div><span class="color-dot-label">Azul-Violeta</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#a0306e"></div><span class="color-dot-label">Rojo-Violeta</span></div>
-      </div>
+      <h3>Por qué los pintores profesionales no usan "rojo, amarillo y azul"</h3>
+      <p>Un secreto profesional: la mayoría de pintores serios trabajan con una paleta cercana al CMY — cadmio rojo (cálido, tirando a naranja) + alizarina carmín (frío, tirando a magenta) + azul ultramar (frío) + azul cerúleo (cálido). Esta "doble paleta primaria" permite mezclas más limpias porque cubre mejor las dos mitades del espectro.</p>
 
-      <div class="lesson-callout"><strong>Nota:</strong> En el sistema digital (RGB/CMY) los primarios son distintos. El sistema RYB es el tradicional para pintores con pigmentos físicos.</div>
+      <div class="lesson-callout">La regla de oro: para mezclar un secundario limpio, los dos primarios que usas deben "inclinarse" hacia ese secundario. Para un verde brillante, usa un amarillo frío (tirando a verde) + un azul cálido (tirando a verde). Si usas un amarillo cálido (anaranjado) + azul frío (violáceo), obtendrás un verde sucio porque ambos contienen algo de rojo que "ensucia" la mezcla.</div>
     `,
-    quiz: [
+    level1: [
       {
         type: 'multiple',
         q: '¿Cuál es el resultado de mezclar azul y amarillo en el sistema RYB?',
@@ -1385,55 +1525,127 @@ const LESSONS = {
         opts: ['RGB','CMYK','RYB','HSL'],
         correct: 2
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: '¿Cuál es el color complementario del amarillo en el sistema RYB?',
+        opts: ['Verde','Naranja','Violeta','Rojo'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué color se obtiene mezclando los tres primarios RYB en partes iguales?',
+        opts: ['Gris','Marrón oscuro / negro sucio','Blanco','Verde oliva'],
+        correct: 1
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál de estos pares son colores SECUNDARIOS del sistema RYB?',
+        opts: [
+          { label:'Rojo + Azul (primarios)',              colors:['#c0392b','#2980b9'] },
+          { label:'Naranja + Verde + Violeta (secundarios)', colors:['#e67e22','#27ae60','#8e44ad'] },
+          { label:'Rojo-Naranja + Azul-Verde (terciarios)', colors:['#e25822','#1e8c6e'] },
+          { label:'Amarillo + Rojo (primarios)',           colors:['#f1c40f','#c0392b'] }
+        ],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'En el círculo cromático de 12 colores, ¿cuántos colores terciarios hay?',
+        opts: ['3','4','6','9'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué sistema usan las impresoras de inyección de tinta?',
+        opts: ['RYB','RGB','CMYK','Munsell'],
+        correct: 2
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: 'La rueda de color de Itten tiene 12 colores. ¿Cuál pintor y teórico la popularizó en el contexto del arte del siglo XX?',
+        opts: ['Josef Albers','Johannes Itten','Albert Munsell','Michel Chevreul'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'En el modelo de color de pigmentos físicos, mezclar rojo cadmio + azul ultramar produce:',
+        opts: ['Un violeta vibrante','Un violeta neutro o sucio','Un azul más oscuro','Un marrón rojizo'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Por qué el sistema RYB tradicional es considerado "inexacto" por los coloristas modernos?',
+        opts: ['Porque tiene pocos colores','Porque los primarios RYB no pueden mezclar todos los colores del espectro visible','Porque no funciona con pintura al óleo','Porque fue diseñado solo para acuarela'],
+        correct: 1
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál de estas ruedas representa el modelo SUSTRACTIVO correcto para pigmentos (CMY)?',
+        opts: [
+          { label:'Primarios RYB con secundarios naranja/verde/violeta', colors:['#c0392b','#f1c40f','#2980b9'] },
+          { label:'Cian/Magenta/Amarillo con secundarios rojo/verde/azul', colors:['#00bcd4','#e91e8c','#f1c40f'] },
+          { label:'Rojo/Verde/Azul (aditivo RGB)', colors:['#e74c3c','#27ae60','#2980b9'] },
+          { label:'Naranja/Teal/Violeta (ninguno)', colors:['#e67e22','#1abc9c','#8e44ad'] }
+        ],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El color "blanco" en el modelo aditivo (luz) se obtiene:',
+        opts: ['Mezclando los 3 primarios RYB','No existe el blanco como mezcla','Mezclando rojo, verde y azul luz en igual intensidad','Usando el color complementario del negro'],
+        correct: 2
+      }
     ]
   },
   armonias: {
     content: `
-      <h2>¿Qué es una armonía de color?</h2>
-      <p>Una armonía de color es una combinación de colores que resulta visualmente agradable y equilibrada. Se basan en las relaciones geométricas entre colores en la rueda cromática.</p>
+      <h2>Armonías de Color</h2>
 
-      <h3>Complementaria</h3>
-      <p>Dos colores opuestos en la rueda. Crean el máximo contraste y vibración visual. Usados por Van Gogh (azul/naranja) y Monet.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#2980b9"></div><span class="color-dot-label">Azul</span></div>
-        <div class="color-dot-item" style="align-self:center;font-size:1.2rem;color:var(--text-muted)">↔</div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e67e22"></div><span class="color-dot-label">Naranja</span></div>
-      </div>
+      <h3>¿Qué hace que los colores "funcionen" juntos?</h3>
+      <p>Una armonía no es simplemente "colores bonitos juntos" — es una relación geométrica precisa entre posiciones en la rueda cromática que el ojo humano percibe como equilibrada. El ojo busca completar el espectro. Cuando una combinación lo logra, produce satisfacción visual. Cuando no, produce tensión.</p>
 
-      <h3>Análoga</h3>
-      <p>Tres o más colores adyacentes en la rueda. Crean sensación de armonía, calma y naturalidad. Ideal para paisajes y composiciones suaves.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e74c3c"></div><span class="color-dot-label">Rojo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e67e22"></div><span class="color-dot-label">Naranja</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#f1c40f"></div><span class="color-dot-label">Amarillo</span></div>
-      </div>
+      <p>Michel Eugène Chevreul (1786–1889), director de la manufactura de tapices Gobelin en París, fue el primero en sistematizar estas relaciones. Al investigar por qué hilos negros parecían azulados junto a naranja, descubrió el <em>contraste simultáneo</em>. Su libro de 1839 influyó directamente en Delacroix, y a través de él en todo el Impresionismo.</p>
 
-      <h3>Triádica</h3>
-      <p>Tres colores equidistantes (cada 120°) en la rueda. Vibrante y equilibrada, ofrece contraste sin tensión extrema.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e74c3c"></div><span class="color-dot-label">Rojo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#27ae60"></div><span class="color-dot-label">Verde</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#2980b9"></div><span class="color-dot-label">Azul</span></div>
-      </div>
+      <h3>Las 7 armonías clásicas</h3>
 
-      <h3>Split-complementaria</h3>
-      <p>Un color base más los dos adyacentes a su complementario. Menos tensión que la complementaria pero igualmente dinámica.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#2980b9"></div><span class="color-dot-label">Base</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e74c3c"></div><span class="color-dot-label">Split 1</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#f1c40f"></div><span class="color-dot-label">Split 2</span></div>
-      </div>
+      <p><strong>1. Monocromática:</strong> Un solo tono en distintos valores y saturaciones. La más cohesiva y sofisticada. Riesgo: monotonía. Solución: ampliar el rango de valores. Maestra en esto: el fotógrafo Ansel Adams (aunque en blanco y negro, el principio es idéntico).</p>
 
-      <h3>Tetrádica (doble complementaria)</h3>
-      <p>Cuatro colores formando dos pares complementarios. Rica y compleja, requiere equilibrio para no saturar.</p>
-      <div class="color-dots">
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#e74c3c"></div><span class="color-dot-label">Rojo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#27ae60"></div><span class="color-dot-label">Verde</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#f1c40f"></div><span class="color-dot-label">Amarillo</span></div>
-        <div class="color-dot-item"><div class="color-dot-circle" style="background:#8e44ad"></div><span class="color-dot-label">Violeta</span></div>
+      <p><strong>2. Análoga:</strong> 2–5 colores dentro de un rango de 60–90° en la rueda. Crean sensación de naturalidad y calma porque abundan en el mundo natural. Monet las usó en toda su serie de nenúfares. El riesgo es bajo contraste — se resuelve con variación de valor.</p>
+
+      <div class="lesson-visual" style="display:flex;gap:3px;margin:0.8rem 0">
+        <div style="flex:1;height:32px;border-radius:2px;background:#e74c3c"></div>
+        <div style="flex:1;height:32px;border-radius:2px;background:#e67e22"></div>
+        <div style="flex:1;height:32px;border-radius:2px;background:#f1c40f"></div>
+        <div style="flex:1;height:32px;border-radius:2px;background:#f9ca24"></div>
       </div>
+      <div style="font-size:0.62rem;color:#878c97;margin-bottom:1rem">Ejemplo de armonía análoga: rojo → naranja → amarillo</div>
+
+      <p><strong>3. Complementaria:</strong> Dos colores directamente opuestos (180°). El máximo contraste de tono. Cuando ambos tienen la misma saturación y valor, generan vibración óptica (el ojo no puede enfocar ambos simultáneamente). Van Gogh la usó intencionalmente: el azul y el naranja vibran en "La noche estrellada".</p>
+
+      <p><strong>4. Split-complementaria:</strong> Un color base + los dos colores adyacentes a su complementario (±30°). Casi tan dinámica como la complementaria, pero sin la tensión extrema. Permite más versatilidad de composición. Recomendada para principiantes que quieren contraste sin caos.</p>
+
+      <p><strong>5. Triádica:</strong> Tres colores equidistantes (120°). Vibrante y equilibrada. Funciona mejor con un color dominante y los otros dos como acentos. Los colores primarios RYB son la tríada básica — úsalos desaturados para evitar que resulten infantiles.</p>
+
+      <p><strong>6. Tetrádica cuadrada:</strong> Cuatro colores a 90° entre sí. La armonía más rica pero la más difícil de controlar. Requiere un color dominante y los demás subordinados. Usar todos a igual peso crea caos visual.</p>
+
+      <p><strong>7. Tetrádica rectangular:</strong> Dos pares complementarios con distinto intervalo de hue. Similar a la cuadrada pero con más desigualdad entre las parejas, lo que facilita la jerarquía.</p>
+
+      <h3>La regla 60-30-10</h3>
+      <p>En cualquier armonía, la distribución de áreas importa tanto como la elección de colores. La regla 60-30-10 establece: 60% color dominante (fondo, masas grandes), 30% color secundario (elementos medios), 10% color de acento (puntos focales). Esta proporción crea equilibrio sin monotonía.</p>
+
+      <h3>Temperatura dentro de la armonía</h3>
+      <p>Dentro de una armonía análoga, incluir variación de temperatura añade profundidad sin romper la cohesión. Por ejemplo: una paleta de verdes que incluya un verde-amarillo cálido y un verde-azul frío tiene más vida que tres verdes idénticos en temperatura. Los impresionistas construyeron todo su lenguaje sobre esto.</p>
+
+      <div class="lesson-callout">Eugène Delacroix fue el primero en estudiar sistemáticamente los complementarios en pintura. Sus cuadernos de bocetos contienen notas sobre pares complementarios décadas antes de que Chevreul publicara su teoría. Dijo: "Ponme barro y te pintaré una Venus con él, si me dejas elegir los colores del entorno."</div>
+
+      <h3>Romper la armonía: la disonancia intencional</h3>
+      <p>Un color que no pertenece al esquema armónico es una "nota discordante". En música sería una disonancia. Usada con precisión, dirige la atención del espectador. Un punto rojo en una composición azul-análoga llama la mirada inmediatamente. Los carteles más efectivos a menudo usan una armonía base + un acento disonante.</p>
     `,
-    quiz: [
+    level1: [
       {
         type: 'multiple',
         q: '¿Cómo se llama la armonía formada por colores opuestos en la rueda?',
@@ -1474,35 +1686,154 @@ const LESSONS = {
         ],
         correct: 2
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: 'Un esquema de color "split-complementario" usa:',
+        opts: ['Dos colores opuestos','Un color base y los dos adyacentes a su complementario','Cuatro colores equidistantes','Tres colores adyacentes'],
+        correct: 1
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál de estos esquemas es TETRÁDICO (doble complementario)?',
+        opts: [
+          { label:'Azul + Naranja (complementario, 2 colores)',  colors:['#2980b9','#e67e22'] },
+          { label:'Rojo + Amarillo + Azul (triádico)',           colors:['#e74c3c','#f1c40f','#2980b9'] },
+          { label:'Rojo + Verde + Azul-violeta + Amarillo-naranja (tetrádico)', colors:['#e74c3c','#27ae60','#4a4cc4','#f39c12'] },
+          { label:'Rojo + Rojo-naranja + Naranja (análogo)',     colors:['#e74c3c','#e25822','#e67e22'] }
+        ],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'La armonía "cuadrada" (square) es un tipo de:',
+        opts: ['Armonía análoga','Armonía triádica','Armonía tetrádica','Armonía split-complementaria'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué armonía usó Monet frecuentemente en su serie de nenúfares, combinando azules, verdes y turquesas?',
+        opts: ['Complementaria','Análoga','Triádica','Split-complementaria'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Para una composición dinámica pero no agresiva, ¿qué armonía es más adecuada?',
+        opts: ['Complementaria directa','Monocromática','Split-complementaria','Tetrádica completa'],
+        correct: 2
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: 'En la práctica pictórica, ¿por qué la armonía complementaria pura rojo-verde puede resultar visualmente incómoda?',
+        opts: ['Porque los colores no contrastan suficiente','Porque genera vibración óptica por igualdad de saturación y valor','Porque el ojo no puede distinguirlos','Porque no existe en la naturaleza'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El concepto de "temperatura relativa" establece que:',
+        opts: ['Solo los colores rojo y azul tienen temperatura','Un mismo color puede parecer más cálido o frío dependiendo del contexto que lo rodea','La temperatura es fija para cada color','Los colores neutros no tienen temperatura'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Van Gogh en "La noche estrellada" usó principalmente:',
+        opts: ['Armonía análoga de azules y verdes con acento complementario amarillo','Armonía triádica pura','Contraste de valor sin armonía de tono','Armonía monocromática'],
+        correct: 0
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál paleta demuestra el uso correcto de una armonía SPLIT-COMPLEMENTARIA con base en azul?',
+        opts: [
+          { label:'Azul + Naranja (solo complementario)',       colors:['#2980b9','#e67e22'] },
+          { label:'Azul + Rojo-naranja + Amarillo-naranja',     colors:['#2980b9','#e25822','#f1c40f'] },
+          { label:'Azul + Verde + Violeta (análogo)',           colors:['#2980b9','#27ae60','#8e44ad'] },
+          { label:'Azul + Naranja + Verde (mezcla aleatoria)',  colors:['#2980b9','#e67e22','#27ae60'] }
+        ],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué es la "disonancia de color" y cuándo se usa intencionalmente?',
+        opts: ['Es un error de mezcla que debe evitarse siempre','Es la combinación de colores que no pertenecen a ningún esquema armónico, usada para crear tensión o énfasis','Es sinónimo de armonía complementaria','Es exclusiva del arte digital'],
+        correct: 1
+      }
     ]
   },
   valores: {
     content: `
-      <h2>El valor: la clave del volumen</h2>
-      <p>El "valor" en pintura es la luminosidad de un color — qué tan claro u oscuro es. Es independiente del tono (hue). Dominar los valores es lo que da la ilusión de volumen y tridimensionalidad a una pintura.</p>
+      <h2>Valores y Volumen</h2>
 
-      <h3>La escala de valores</h3>
-      <p>Imagina una escala del 0 (negro puro) al 10 (blanco puro). Cada color tiene un valor "natural": el amarillo tiene valor alto (~8), el violeta tiene valor bajo (~3).</p>
-      <div class="color-strip">
-        <div class="color-strip-seg" style="background:#0a0a0a"></div>
-        <div class="color-strip-seg" style="background:#333"></div>
-        <div class="color-strip-seg" style="background:#666"></div>
-        <div class="color-strip-seg" style="background:#aaa"></div>
-        <div class="color-strip-seg" style="background:#ddd"></div>
-        <div class="color-strip-seg" style="background:#f5f5f5"></div>
+      <h3>El valor: la dimensión más importante del color</h3>
+      <p>Muchos pintores afirman que si tuvieras que elegir entre dominar el color o dominar el valor, elige el valor. Una pintura monocromática con valores correctos lee perfectamente. Una pintura de colores brillantes con valores equivocados parece plana y confusa. El valor es la arquitectura; el color es la decoración.</p>
+
+      <p>El valor es simplemente la luminosidad de un color — qué tan claro u oscuro es en una escala de 0 (negro absoluto) a 10 (blanco absoluto). Es completamente independiente del tono (hue): un rojo y un verde pueden tener exactamente el mismo valor.</p>
+
+      <h3>Valores naturales de los tonos</h3>
+      <p>Cada color del espectro tiene un "valor natural" — la luminosidad a la que aparece cuando está en su máxima saturación. Estos no son iguales entre sí:</p>
+
+      <div class="lesson-visual" style="display:flex;gap:4px;margin:1rem 0;align-items:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#f1c40f;border-radius:2px;height:80px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Amarillo<br>V≈8</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#e67e22;border-radius:2px;height:60px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Naranja<br>V≈6</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#27ae60;border-radius:2px;height:50px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Verde<br>V≈5</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#e74c3c;border-radius:2px;height:45px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Rojo<br>V≈4</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#2980b9;border-radius:2px;height:40px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Azul<br>V≈4</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <div style="width:32px;background:#8e44ad;border-radius:2px;height:28px"></div>
+          <div style="font-size:0.58rem;color:#878c97">Violeta<br>V≈3</div>
+        </div>
       </div>
-      <p style="font-size:0.72rem;color:var(--text-muted);margin-top:-0.5rem">Negro (0) → Gris medio (5) → Blanco (10)</p>
 
-      <h3>Valores y luz en una esfera</h3>
-      <p>En una esfera iluminada, identificamos: <strong>Luz directa</strong> (valor más alto), <strong>Semisombra</strong> (valor medio), <strong>Sombra propia</strong> (valor bajo), <strong>Sombra proyectada</strong> (el más oscuro), <strong>Luz reflejada</strong> (ligeramente más claro que la sombra).</p>
-      <div class="sphere-visual"></div>
+      <p>Esta jerarquía tiene consecuencias prácticas enormes. Si pintas un amarillo y un violeta al mismo valor (por ejemplo, ambos a value 5), el amarillo estará oscurecido artificialmente y el violeta aclarado artificialmente — ambos perderán su identidad cromática. Respetar los valores naturales hace que los colores "suenen" con toda su fuerza.</p>
 
-      <h3>El error más común</h3>
-      <p>Pintar sin suficiente rango de valores hace que la obra pierda profundidad. Un estudio en escala de grises antes de añadir color ayuda a verificar que el rango de valores es correcto.</p>
+      <h3>Los 5 elementos del modelado de luz</h3>
+      <p>En el modelo académico clásico, una forma iluminada por una fuente de luz tiene 5 zonas de valor distintas:</p>
 
-      <div class="lesson-callout"><strong>Chiaroscuro:</strong> Los maestros como Rembrandt dominaban el chiaroscuro — el contraste extremo de valores para crear drama y profundidad.</div>
+      <p><strong>1. Brillo (Highlight):</strong> El punto de máxima reflexión directa de la fuente de luz. En superficies brillantes (metal, vidrio) es un punto pequeño y duro. En superficies mates (tela, piel) es difuso. Valor 9–10.</p>
+
+      <p><strong>2. Semitono (Halftone / Midtone):</strong> La zona iluminada difusamente, donde el color local del objeto se ve con más fidelidad. Es la zona de transición entre luz y sombra. Valor 6–8.</p>
+
+      <p><strong>3. Núcleo de sombra / Terminador:</strong> La zona más oscura de la sombra PROPIA del objeto — el borde donde la luz deja de llegar directamente. Errores comunes: pintarlo demasiado claro, o confundirlo con la sombra proyectada. Valor 1–2.</p>
+
+      <p><strong>4. Luz reflejada (Reflected Light):</strong> Luz que rebota de superficies cercanas de vuelta hacia la zona de sombra. SIEMPRE más oscura que el semitono — es un error de principiante pintarla demasiado clara. Valor 3–5.</p>
+
+      <p><strong>5. Sombra proyectada (Cast Shadow):</strong> La sombra que el objeto proyecta sobre otras superficies. Borde duro cerca del objeto, se suaviza con la distancia. A menudo el elemento más oscuro de la composición (valor 0–2) excepto en zonas de alto contraste de luz ambiental.</p>
+
+      <h3>Chiaroscuro: la historia del valor en el arte occidental</h3>
+      <p>Chiaroscuro (claro-oscuro en italiano) es la técnica de usar contrastes fuertes de valor para modelar la forma. Leonardo da Vinci lo sistematizó con el <em>sfumato</em> — transiciones tan graduales que desaparecen como humo. Caravaggio lo llevó al extremo con el <em>tenebrismo</em> — figuras emergiendo de la oscuridad total.</p>
+
+      <p>Rembrandt van Rijn (1606–1669) es considerado el maestro absoluto del valor. Sus autorretratos demuestran un rango de values de casi 0 a 10, con transiciones cuidadosamente orquestadas. El espectador mira donde Rembrandt quiere porque la luz guía el ojo.</p>
+
+      <div class="lesson-callout">El NOTAN (濃淡) es un concepto japonés que significa "oscuridad y luz". En la práctica, es el ejercicio de reducir una composición a solo dos valores: negro absoluto y blanco absoluto. Si la composición "lee" claramente en notan, funcionará en color. Si no, el color no la salvará. Es el test definitivo de si una composición tiene estructura sólida.</div>
+
+      <h3>High key, Low key y Full range</h3>
+      <p><strong>High key:</strong> La paleta de valores se concentra en el rango 6–10. Sensación de ligereza, optimismo, delicadeza. El Impresionismo tendía al high key. Riesgo: falta de drama.</p>
+
+      <p><strong>Low key:</strong> Valores concentrados en 0–4. Misterio, gravedad, drama. Rembrandt, Caravaggio, el Barroco en general. Riesgo: oscuridad sin foco.</p>
+
+      <p><strong>Full range:</strong> Usa el espectro completo de 0 a 10. La mayor capacidad de crear profundidad y drama. Pero requiere control total para que el ojo no se pierda.</p>
+
+      <h3>Perspectiva atmosférica y valores</h3>
+      <p>Los objetos lejanos tienen valores más claros, menor contraste con el fondo y bordes más suaves. Esto se debe al efecto de la atmósfera (partículas de polvo y vapor de agua) que dispersa la luz. Leonardo fue el primero en describirlo sistemáticamente. Los paisajistas del Hudson River School (siglo XIX) lo convirtieron en su herramienta principal de profundidad.</p>
     `,
-    quiz: [
+    level1: [
       {
         type: 'multiple',
         q: '¿Qué es el "valor" en términos de color?',
@@ -1541,42 +1872,134 @@ const LESSONS = {
         ],
         correct: 1
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: '¿Qué es el "notan" en pintura?',
+        opts: ['Una técnica japonesa de simplificar una composición a sus valores de luz y sombra','Un tipo de pincel tradicional','Un sistema de mezcla de colores','Un método de imprimación'],
+        correct: 0
+      },
+      {
+        type: 'multiple',
+        q: 'En una esfera iluminada, ¿cuál zona representa la "luz reflejada"?',
+        opts: ['El punto más brillante (highlight)','La zona más oscura','El borde claro dentro de la sombra propia','La sombra proyectada'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'Un "high key" painting es aquel que:',
+        opts: ['Usa principalmente valores oscuros','Usa principalmente valores claros y medios, sin negros profundos','Tiene el mayor contraste posible','Solo usa colores primarios'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Si conviertes una pintura a escala de grises y los objetos se "funden" entre sí, ¿cuál es el problema?',
+        opts: ['Hay demasiado contraste de color','Los valores son demasiado similares entre sí','Se usaron demasiados colores','La saturación es muy alta'],
+        correct: 1
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál de estas versiones tiene mayor rango de valores?',
+        opts: [
+          { label:'Tonos medios similares',   colors:['#606060','#707070','#585858','#686868'] },
+          { label:'Rango completo negro-blanco', colors:['#111111','#444444','#aaaaaa','#eeeeee'] }
+        ],
+        correct: 1
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: 'En el sistema Munsell, un color con Value 2 y otro con Value 8 tienen una diferencia de valor de:',
+        opts: ['2 pasos','6 pasos','8 pasos','10 pasos'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El "simultaneous contrast of value" (Albers) describe que:',
+        opts: ['Dos valores iguales parecen diferentes según su entorno','Los colores complementarios siempre tienen el mismo valor','El ojo prefiere valores medios','El contraste de valor y de tono son equivalentes'],
+        correct: 0
+      },
+      {
+        type: 'multiple',
+        q: 'En la pintura académica tradicional, el orden correcto para construir valores es:',
+        opts: ['Color → Valor → Dibujo','Dibujo → Color → Valor','Dibujo → Valor (grisalla) → Color (veladuras)','Valor → Color → Dibujo simultáneamente'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Por qué el amarillo "puro" tiene un valor natural más alto que el violeta puro?',
+        opts: ['Porque el amarillo es un color cálido','Porque el ojo humano es más sensible a la longitud de onda del amarillo-verde','Es una convención arbitraria del sistema Munsell','Porque el violeta absorbe más luz'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Un pintor quiere crear profundidad atmosférica (perspectiva aérea). ¿Qué hace con los valores de los objetos lejanos?',
+        opts: ['Los hace más oscuros y saturados','Los aclara y reduce su contraste con el fondo','Los hace idénticos al primer plano','Aumenta su saturación'],
+        correct: 1
+      }
     ]
   },
   munsell: {
     content: `
-      <h2>El sistema más preciso del mundo</h2>
-      <p>Albert H. Munsell creó en 1905 el primer sistema de color perceptualmente uniforme. A diferencia de HSL o RGB, los pasos entre valores de Munsell son visualmente iguales — lo que ves es lo que mides.</p>
+      <h2>El Sistema Munsell</h2>
 
-      <h3>Las tres dimensiones</h3>
-      <p>Munsell define cada color con tres coordenadas:</p>
-      <ul>
-        <li><strong>HUE (Tono):</strong> La posición en la rueda. 10 tonos principales (R, YR, Y, GY, G, BG, B, PB, P, RP), cada uno dividido en 10 pasos.</li>
-        <li><strong>VALUE (Valor):</strong> Luminosidad de 0 (negro) a 10 (blanco).</li>
-        <li><strong>CHROMA (Croma):</strong> Saturación/pureza, de 0 (gris neutro) hacia afuera sin límite teórico.</li>
-      </ul>
+      <h3>Albert H. Munsell y el problema de nombrar colores</h3>
+      <p>Albert Henry Munsell (1858–1918) era un maestro de arte en Boston frustrado por la imprecisión del lenguaje del color. ¿Qué significa exactamente "azul cielo"? ¿"Verde botella"? Dos pintores con el mismo nombre describían colores completamente distintos. En 1898 comenzó a desarrollar un sistema que midiera el color como se mide la longitud o el peso.</p>
+
+      <p>Munsell publicó <em>A Color Notation</em> (1905) y <em>Atlas of the Munsell Color System</em> (1915). Murió en 1918, antes de completar su trabajo. La Optical Society of America y el MIT publicaron la "Munsell Renotation" en 1943, corrigiendo sus datos con medición espectrofotométrica precisa. Este conjunto de datos sigue siendo el estándar de conversión Munsell ↔ CIE hoy.</p>
+
+      <h3>Las tres dimensiones del color</h3>
+
+      <p><strong>HUE (Tono — H):</strong> La posición en la rueda cromática. Munsell definió 10 familias principales: R (rojo), YR (amarillo-rojo/naranja), Y (amarillo), GY (verde-amarillo), G (verde), BG (azul-verde), B (azul), PB (azul-púrpura), P (púrpura), RP (rojo-púrpura). Cada familia se subdivide en 10 pasos (1–10). El "5" de cada familia es el tono principal: 5R es el rojo más puro, 5Y el amarillo más puro.</p>
+
+      <p><strong>VALUE (Valor — V):</strong> La luminosidad, de 0 (negro absoluto, teórico — ningún pigmento lo alcanza) a 10 (blanco absoluto, también teórico). La escala NO es lineal en términos de reflectancia física. Un Value 5 refleja aproximadamente el 20% de la luz, no el 50%. Esto es intencional: sigue la respuesta no lineal del ojo humano (ley de Stevens). Los pasos visuales son iguales aunque los físicos no lo sean.</p>
+
+      <p><strong>CHROMA (Croma — C):</strong> La saturación o alejamiento del gris neutro. Empieza en 0 (gris neutro absoluto, independientemente del tono) y se extiende hacia afuera sin límite teórico. En la práctica, los pigmentos reales alcanzan entre /4 y /20 dependiendo del tono. El chroma máximo disponible varía según el hue: los amarillos pueden llegar a /14, los rojos a /20 en algunos casos.</p>
 
       <h3>La notación Munsell</h3>
-      <p>Se escribe como: <strong>HUE VALUE/CHROMA</strong>. Ejemplo:</p>
-      <div>
-        <div class="munsell-notation-card">
-          <div class="munsell-notation-swatch" style="background:#c0392b"></div>
-          <div class="munsell-notation-code">5R 4/8</div>
-          <div style="font-size:0.72rem;color:var(--text-muted)">Rojo puro · valor medio · croma alto</div>
+      <p>Se escribe: <strong>H V/C</strong>. Ejemplos:</p>
+
+      <div class="lesson-visual" style="display:flex;gap:0.8rem;flex-wrap:wrap;margin:1rem 0">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem">
+          <div style="width:36px;height:36px;border-radius:3px;background:#c0392b;border:1px solid rgba(255,255,255,0.1)"></div>
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;color:var(--accent);font-family:monospace">5R 4/14</div>
+            <div style="font-size:0.65rem;color:#878c97">Rojo puro, value medio, muy saturado</div>
+          </div>
         </div>
-        <div class="munsell-notation-card">
-          <div class="munsell-notation-swatch" style="background:#f4d03f"></div>
-          <div class="munsell-notation-code">5Y 8/12</div>
-          <div style="font-size:0.72rem;color:var(--text-muted)">Amarillo · claro · muy saturado</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem">
+          <div style="width:36px;height:36px;border-radius:3px;background:#f1c40f;border:1px solid rgba(255,255,255,0.1)"></div>
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;color:var(--accent);font-family:monospace">5Y 8/12</div>
+            <div style="font-size:0.65rem;color:#878c97">Amarillo puro, value alto, saturado</div>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem">
+          <div style="width:36px;height:36px;border-radius:3px;background:#778899;border:1px solid rgba(255,255,255,0.1)"></div>
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;color:var(--accent);font-family:monospace">5B 5/2</div>
+            <div style="font-size:0.65rem;color:#878c97">Azul apagado, value medio, poco croma</div>
+          </div>
         </div>
       </div>
 
-      <h3>¿Por qué importa para pintores?</h3>
-      <p>Munsell permite describir colores con precisión absoluta, comparar pinturas de distintos fabricantes, y entender por qué ciertos colores "pesan" más visualmente que otros.</p>
+      <h3>Por qué el sólido de Munsell es irregular</h3>
+      <p>A diferencia del modelo HSL/HSV (que asume un sólido simétrico), el espacio de color de Munsell es IRREGULAR. El amarillo alcanza su máximo croma a value alto (es naturalmente un color brillante). El violeta alcanza su máximo croma a value bajo. Esta asimetría es real — refleja lo que los pigmentos y el ojo humano pueden lograr físicamente. Esta es precisamente su ventaja sobre HSL para pintores.</p>
 
-      <div class="lesson-callout"><strong>Explora:</strong> La herramienta en paletas.html incluye el sistema Munsell — puedes explorar el espacio de color en 3D directamente.</div>
+      <div class="lesson-callout">El Atlas de Munsell físico (el libro de chips de color) tiene algunas celdas vacías. Representan colores que existen matemáticamente en la notación pero que no pueden reproducirse con ningún pigmento real conocido. Estas "fuera de gama" son una honestidad que otros sistemas ignoran.</div>
+
+      <h3>Usos profesionales del sistema Munsell</h3>
+      <p><strong>Ciencia del suelo:</strong> La Carta de Color de Suelos Munsell es el estándar internacional. Arqueólogos, geólogos y agrónomos de todo el mundo describen el suelo con notación Munsell.</p>
+      <p><strong>Odontología:</strong> Las guías de color dental VITA (para seleccionar el tono de porcelanas y coronas) están derivadas del sistema Munsell.</p>
+      <p><strong>Restauración de arte:</strong> Los conservadores de museos describen los colores de pigmentos históricos con notación Munsell para comunicarse con precisión entre instituciones.</p>
+      <p><strong>Especificaciones militares:</strong> El Federal Standard 595 del gobierno estadounidense especifica los colores de vehículos y equipos militares en notación Munsell.</p>
+
+      <h3>Munsell y la ciencia del color moderna</h3>
+      <p>El espacio de color CIELAB (1976), el estándar internacional de la industria, fue desarrollado con el objetivo explícito de lograr la uniformidad perceptual que Munsell buscaba. Los datos de la Renotación Munsell de 1943 se usaron directamente en su calibración. OSA-UCS (1974) fue otro intento de la Optical Society of America. El legado de Munsell está en cada monitor calibrado, cada impresora de precisión y cada escáner de color del mundo.</p>
     `,
-    quiz: [
+    level1: [
       {
         type: 'multiple',
         q: 'En el sistema Munsell, ¿qué mide el "Value"?',
@@ -1607,40 +2030,128 @@ const LESSONS = {
         opts: ['Tiene más colores','Es más fácil de usar digitalmente','Sus pasos son perceptualmente uniformes','Solo funciona con pinturas físicas'],
         correct: 2
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: 'En la notación Munsell "7.5PB 4/10", ¿qué significa "7.5PB"?',
+        opts: ['El valor del color','El croma','El tono (azul-violeta en posición 7.5)','La temperatura'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'Un color Munsell con Chroma 2 comparado con uno de Chroma 12 del mismo tono y valor:',
+        opts: ['Es más claro','Es más oscuro','Es mucho menos saturado','Tiene un tono diferente'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Por qué los amarillos en Munsell no pueden alcanzar Chroma tan alto como el rojo?',
+        opts: ['Porque Munsell no incluye amarillos de alta saturación','Porque el límite de Chroma depende de lo que existe como pigmento físico y lo que el ojo puede distinguir','Porque el amarillo tiene valor demasiado alto','Es un error del sistema'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué significa que el sistema Munsell sea "perceptualmente uniforme"?',
+        opts: ['Que todos los colores tienen el mismo número de pasos','Que un paso de diferencia en Value o Chroma siempre representa la misma diferencia visual percibida por el ojo','Que es más fácil de aprender que RGB','Que todos los tonos tienen el mismo Chroma máximo'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'En el atlas Munsell físico, algunas celdas están vacías o "fuera de gama". Esto significa:',
+        opts: ['Que Munsell no completó el trabajo','Que ese color teóricamente existe pero no puede reproducirse con pigmentos reales','Que el color no es visible para el ojo humano','Que la notación está incorrecta'],
+        correct: 1
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: '¿Cómo se relaciona el sistema Munsell con el espacio de color CIELAB?',
+        opts: ['Son sistemas completamente diferentes sin relación','CIELAB fue desarrollado posteriormente inspirándose en la uniformidad perceptual que Munsell buscaba','Munsell es una versión simplificada de CIELAB','CIELAB reemplazó completamente a Munsell'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Un pintor mezcla dos colores: 5R 5/12 y 5BG 5/12. El resultado teórico en el centro sería aproximadamente:',
+        opts: ['Un violeta brillante','Un gris neutro o marrón muy desaturado','Un naranja','Un verde brillante'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Por qué la escala de Value de Munsell no es lineal en términos de reflectancia de luz?',
+        opts: ['Es un error de medición','Porque sigue la curva de respuesta no lineal del sistema visual humano (Ley de Stevens)','Porque Munsell prefirió números redondos','Porque depende del tipo de superficie'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'En restauración de pintura, ¿para qué se usa el sistema Munsell?',
+        opts: ['Para elegir colores decorativos','Para describir y reproducir colores con precisión independientemente de las marcas de pintura disponibles','Para analizar la composición química de los pigmentos','Solo se usa en diseño industrial'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El concepto de "Munsell value" se relaciona directamente con:',
+        opts: ['La longitud de onda dominante','El porcentaje de reflectancia de luz de una superficie, corregido perceptualmente','La temperatura de color en Kelvin','La saturación relativa al blanco'],
+        correct: 1
+      }
     ]
   },
   filosofia: {
     content: `
-      <h2>Los colores hablan</h2>
-      <p>Los colores generan respuestas emocionales automáticas en el observador. Estas asociaciones vienen de la biología, la cultura y la experiencia. Un artista consciente de esto puede controlar lo que su obra comunica.</p>
+      <h2>Filosofía del Color</h2>
 
-      <h3>Colores cálidos</h3>
-      <p>Rojo, naranja y amarillo evocan calor, energía y urgencia. El rojo activa el sistema nervioso, acelera el pulso. El naranja transmite entusiasmo sin agresividad. El amarillo capta la atención — es el color más visible del espectro.</p>
-      <div class="color-strip" style="max-width:320px;height:36px">
-        <div class="color-strip-seg" style="background:#e74c3c"></div>
-        <div class="color-strip-seg" style="background:#e67e22"></div>
-        <div class="color-strip-seg" style="background:#f1c40f"></div>
+      <h3>Newton vs Goethe: el debate fundacional</h3>
+      <p>La historia de la filosofía del color comienza con un desacuerdo histórico. Para Isaac Newton, el color era física objetiva: longitudes de onda de luz, medibles y universales. El ojo solo las detecta pasivamente.</p>
+
+      <p>Para Johann Wolfgang von Goethe (1749–1832), esto era una reducción absurda. En su <em>Zur Farbenlehre</em> (1810), Goethe argumentó que el color es una experiencia, no un dato. Sus experimentos con pos-imágenes (si miras un rojo intenso y luego una pared blanca, "ves" verde) y con el contraste simultáneo eran fenómenos reales que el modelo de Newton ignoraba completamente.</p>
+
+      <p>Ambos tenían razón en su dominio. Newton describía la física de la luz. Goethe describía la percepción humana del color. El siglo XX reconcilió ambas visiones con la psicofísica y la neurociencia del color.</p>
+
+      <h3>Los grandes teóricos del color</h3>
+
+      <p><strong>Michel Eugène Chevreul (1786–1889):</strong> Químico, director de la manufactura Gobelin. Su obra <em>De la loi du contraste simultané des couleurs</em> (1839) describió cómo cada color "irradia" su complementario hacia los colores adyacentes. Esta ley influyó directamente en Delacroix, y a través de él, en los Impresionistas y el Puntillismo de Seurat.</p>
+
+      <p><strong>Wassily Kandinsky (1866–1944):</strong> En <em>Über das Geistige in der Kunst</em> (1911) mapeó colores con emociones, sonidos y formas geométricas con una precisión casi científica. Para Kandinsky: el amarillo era excéntrico, agresivo, terrena; el azul, espiritual, profundo, celestial; el rojo, poderoso, maduro, vibrante; el verde, pasivo, aburrido, burgués. Fue el primero en sistematizar la abstracción expresiva del color.</p>
+
+      <p><strong>Johannes Itten (1888–1967):</strong> En el Bauhaus desarrolló el concepto de "color subjetivo" — la idea de que cada persona tiene una paleta de colores que le es naturalmente afín, determinada por su temperamento. Sus estudiantes empezaban la clase eligiendo sus colores favoritos, que luego analizaba psicológicamente. Precursor de la teoría de la colorimetría personal (las "estaciones" en moda).</p>
+
+      <p><strong>Josef Albers (1888–1976):</strong> Su libro <em>Interaction of Color</em> (1963) es posiblemente el libro de color más influyente del siglo XX. Demostró con ejercicios prácticos (estudiantes cortando y organizando papel de color) que el color no tiene identidad absoluta — solo existe en relación a otros colores. "En la percepción visual, un color casi nunca es como realmente es — como físicamente es."</p>
+
+      <div class="lesson-callout">La cita más famosa de Albers: "En la percepción visual, un color casi nunca se ve como realmente es." El mismo gris sobre fondo negro parece blanco. El mismo gris sobre fondo blanco parece negro. El color es el medio más relativo del arte.</div>
+
+      <h3>La psicología del color: lo que dice la ciencia</h3>
+      <p>El rojo acelera el pulso y la presión arterial (estudios de Kurt Goldstein). Los casinos y restaurantes de comida rápida lo usan conscientemente. El azul tiene el efecto contrario — reduce la agresividad, aumenta la confianza. Los bancos y hospitales lo adoptan universalmente.</p>
+
+      <p>El llamado "Pink Baker-Miller" (un rosa chicle específico) se aplicó en celdas de prisiones en los años 80 tras estudios que sugerían reducción de agresividad. Los resultados son controvertidos, pero el experimento muestra hasta qué punto se tomó en serio la influencia del color en el comportamiento.</p>
+
+      <p>Frank Mahnke, en <em>Color, Environment, and Human Response</em> (1996), sistematizó décadas de investigación aplicada: el verde reduce el estrés en quirófanos (y contrarresta la pos-imagen roja de la sangre), el azul pálido en aulas mejora la concentración, el amarillo estimula la actividad mental en espacios de trabajo creativos.</p>
+
+      <h3>Significados culturales del color</h3>
+      <div class="lesson-visual" style="display:flex;flex-direction:column;gap:0.5rem;margin:1rem 0">
+        <div style="display:flex;align-items:flex-start;gap:0.8rem">
+          <div style="width:22px;height:22px;border-radius:2px;background:#e74c3c;flex-shrink:0;margin-top:2px"></div>
+          <div style="font-size:0.72rem;color:var(--text);line-height:1.5"><strong style="color:var(--accent)">Rojo:</strong> Pasión y peligro (Occidente) · Suerte y prosperidad (China, India) · Luto (Sudáfrica) · Pureza (algunas culturas indígenas americanas)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:0.8rem">
+          <div style="width:22px;height:22px;border-radius:2px;background:#f5f5f5;flex-shrink:0;margin-top:2px;border:1px solid #333"></div>
+          <div style="font-size:0.72rem;color:var(--text);line-height:1.5"><strong style="color:var(--accent)">Blanco:</strong> Pureza y matrimonio (Occidente) · Luto y muerte (China, Japón, India) · Paz (universal)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:0.8rem">
+          <div style="width:22px;height:22px;border-radius:2px;background:#2980b9;flex-shrink:0;margin-top:2px"></div>
+          <div style="font-size:0.72rem;color:var(--text);line-height:1.5"><strong style="color:var(--accent)">Azul:</strong> Confianza y tecnología (universal) · Luto (Irán) · Protección del mal de ojo (Mediterráneo) · Masculinidad (Occidente moderno — convención del siglo XX)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:0.8rem">
+          <div style="width:22px;height:22px;border-radius:2px;background:#8e44ad;flex-shrink:0;margin-top:2px"></div>
+          <div style="font-size:0.72rem;color:var(--text);line-height:1.5"><strong style="color:var(--accent)">Púrpura:</strong> Realeza y lujo (Occidente — históricamente carísimo, de los moluscos Murex) · Luto (Brasil, Tailandia) · Sabiduría espiritual (cristiano/budista)</div>
+        </div>
       </div>
-      <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem">Energía · Urgencia · Calidez</p>
 
-      <h3>Colores fríos</h3>
-      <p>Azul, verde y violeta generan calma, confianza y distancia. El azul reduce la presión arterial y es el color más universal de confianza. El verde conecta con naturaleza y equilibrio. El violeta evoca misterio y lujo.</p>
-      <div class="color-strip" style="max-width:320px;height:36px">
-        <div class="color-strip-seg" style="background:#2980b9"></div>
-        <div class="color-strip-seg" style="background:#27ae60"></div>
-        <div class="color-strip-seg" style="background:#8e44ad"></div>
-      </div>
-      <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem">Calma · Confianza · Misterio</p>
+      <h3>Temperatura del color: cálidos y fríos</h3>
+      <p>La temperatura del color no es absoluta — es RELATIVA. Un azul puede parecer cálido junto a un azul más frío. El verde puede ser cálido (tirando a amarillo) o frío (tirando a azul). Esta relatividad es lo que hace que la temperatura sea tan poderosa en pintura: un mismo azul en dos contextos diferentes comunicará cosas distintas.</p>
 
-      <h3>Saturación y valor como mensajes</h3>
-      <p>Un color muy saturado comunica intensidad y urgencia. Un color desaturado (grisáceo) transmite sofisticación, melancolía o quietud. Valores altos (colores claros) dan sensación de ligereza y optimismo. Valores bajos (oscuros) comunican peso, poder o misterio.</p>
-
-      <h3>Contrastes culturales</h3>
-      <p>El blanco significa pureza en Occidente pero luto en partes de Asia. El rojo significa peligro en muchos contextos pero suerte y celebración en China. Conocer tu audiencia importa.</p>
-
-      <div class="lesson-callout"><strong>Paleta personalizada:</strong> La sección de paleta personalizada en paletas.html muestra las emociones de cada color que añades.</div>
+      <p>Los colores cálidos "avanzan" visualmente (parecen más cercanos), los fríos "retroceden" (parecen lejanos). Los paisajistas usaban azules y grises para los planos distantes, amarillos y naranjas para los cercanos. Rubens pintaba las luces de la piel con amarillos y naranjas cálidos, y las sombras con azules y violetas fríos — creando una vibración complementaria de temperatura que da a sus figuras una vitalidad imposible con sombras marrones.</p>
     `,
-    quiz: [
+    level1: [
       {
         type: 'visual-pick',
         q: '¿Qué paleta comunica mejor "confianza y calma"?',
@@ -1681,57 +2192,148 @@ const LESSONS = {
         opts: ['No importa, el color es universal','Afecta solo al diseño gráfico, no a la pintura','Un mismo color puede tener significados opuestos en distintas culturas','Solo los colores primarios tienen significado cultural'],
         correct: 2
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: 'Según la psicología del color, ¿qué efecto tiene el azul oscuro en ambientes de trabajo?',
+        opts: ['Aumenta la creatividad caótica','Genera agresividad','Aumenta la concentración y reduce el estrés','Produce sensación de hambre'],
+        correct: 2
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Qué paleta comunicaría mejor una marca de productos naturales y ecológicos?',
+        opts: [
+          { label:'Rojos y naranjas (energético)',      colors:['#e74c3c','#c0392b','#e67e22'] },
+          { label:'Verdes + blanco cálido (natural)',   colors:['#27ae60','#1abc9c','#f9f3e3'] },
+          { label:'Oscuros (lujo/misterio)',            colors:['#2c3e50','#1a1a2e','#0a0a0a'] },
+          { label:'Vivos mixtos (lúdico)',              colors:['#e91e8c','#9b59b6','#3498db'] }
+        ],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El color naranja en marketing se asocia con:',
+        opts: ['Lujo exclusivo y reserva','Peligro y advertencia únicamente','Accesibilidad, entusiasmo y llamada a la acción','Tecnología y precisión'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué fenómeno explica por qué los restaurantes de comida rápida usan rojo y amarillo?',
+        opts: ['Son los colores más baratos de imprimir','El rojo estimula el apetito y el amarillo crea sensación de felicidad y urgencia','Son los colores más visibles en exteriores','Fue una decisión aleatoria de McDonald\'s en 1950'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Los "colores de tierra" (ocres, siennas, umbers) se asocian psicológicamente con:',
+        opts: ['Frialdad y distancia','Artificialidad y tecnología','Estabilidad, calidez, conexión con lo natural y lo ancestral','Urgencia y peligro'],
+        correct: 2
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: 'Kandinsky en "De lo espiritual en el arte" (1911) asociaba el amarillo con:',
+        opts: ['Calma espiritual','Una energía que "se lanza hacia el espectador", excéntrica e inquieta','Melancolía profunda','Neutralidad y equilibrio'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'La teoría del color de Goethe (Zur Farbenlehre, 1810) se opuso a Newton principalmente en:',
+        opts: ['El número de colores del espectro','Que el color no es solo física sino una experiencia subjetiva y emocional','La existencia de los colores primarios','El funcionamiento de los prismas'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El "efecto Bezold" en psicología del color describe:',
+        opts: ['Cómo los colores complementarios vibran juntos','Cómo cambiar un solo color en un patrón puede alterar la percepción de toda la composición','La tendencia humana a preferir colores cálidos','La insensibilidad al color en condiciones de poca luz'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué pintor usó el color como expresión emocional directa, alejándose de la representación realista?',
+        opts: ['Vermeer','Canaletto','Ernst Ludwig Kirchner (Expresionismo)','Ingres'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'El concepto de "simultaneous contrast" de Michel Eugène Chevreul (1839) influyó directamente en:',
+        opts: ['El Renacimiento italiano','El movimiento Impresionista y el Puntillismo','El arte Medieval','El Barroco flamenco'],
+        correct: 1
+      }
     ]
   },
   contrastes: {
     content: `
-      <h2>El contraste como herramienta</h2>
-      <p>Johannes Itten identificó 7 tipos de contraste de color en su obra <em>Arte del Color</em> (1961). Cada uno genera una tensión visual diferente y puede usarse estratégicamente para guiar la atención del espectador.</p>
+      <h2>Los 7 Contrastes de Itten</h2>
 
-      <h3>Contraste de tono</h3>
-      <p>El contraste más básico: usar colores de tonos diferentes. El máximo contraste de tono es negro vs blanco.</p>
-      <div class="contrast-pair">
-        <div class="contrast-half" style="background:#0a0a0a"></div>
-        <div class="contrast-half" style="background:#f5f5f5"></div>
+      <h3>Johannes Itten y el sistema de contrastes</h3>
+      <p>Johannes Itten, en su obra <em>Kunst der Farbe</em> (1961), identificó 7 tipos fundamentales de contraste de color. Cada uno produce un efecto visual y psicológico distinto, y puede usarse estratégicamente para controlar la experiencia del espectador. Dominar los 7 contrastes es dominar el lenguaje visual del color.</p>
+
+      <h3>Los 7 contrastes en detalle</h3>
+
+      <p><strong>1. Contraste de tono (Hue contrast):</strong> El contraste más básico — simplemente usar colores de tonos distintos. El máximo contraste de tono ocurre con los tres primarios juntos (rojo, amarillo, azul). Añadir negro o blanco reduce el contraste de tono al desaturar los colores. Paul Klee y Mondrian trabajaron casi exclusivamente con este contraste.</p>
+
+      <div class="lesson-visual" style="display:flex;gap:4px;margin:0.8rem 0">
+        <div style="flex:1;height:28px;border-radius:2px;background:#e74c3c"></div>
+        <div style="flex:1;height:28px;border-radius:2px;background:#f1c40f"></div>
+        <div style="flex:1;height:28px;border-radius:2px;background:#2980b9"></div>
       </div>
 
-      <h3>Contraste claro-oscuro (valor)</h3>
-      <p>Colocar juntos un color de valor alto y uno de valor bajo. Rembrandt lo llevó al extremo con el chiaroscuro.</p>
-      <div class="contrast-pair">
-        <div class="contrast-half" style="background:#1a4a8c"></div>
-        <div class="contrast-half" style="background:#87ceeb"></div>
-      </div>
+      <p><strong>2. Contraste claro-oscuro (Light-dark contrast):</strong> El contraste de valores. El máximo: blanco puro vs negro puro. Todos los colores tienen un valor natural propio (el amarillo es naturalmente claro, el violeta oscuro). Rembrandt y Caravaggio hicieron de este contraste su herramienta principal. El ojo siempre se mueve de la oscuridad a la luz — quien controla el valor, controla la atención.</p>
 
-      <h3>Contraste cálido-frío</h3>
-      <p>Yuxtaponer colores de temperatura opuesta. Crea profundidad: los cálidos "avanzan" y los fríos "retroceden" visualmente.</p>
-      <div class="contrast-pair">
-        <div class="contrast-half" style="background:#e67e22"></div>
-        <div class="contrast-half" style="background:#2980b9"></div>
-      </div>
+      <p><strong>3. Contraste cálido-frío (Warm-cool contrast):</strong> Los colores rojos, naranjas y amarillos "avanzan" y parecen más cercanos. Los azules, verdes y violetas "retroceden". Además, los cálidos parecen más secos y los fríos más húmedos (asociación con fuego/agua). Rubens era el maestro de este contraste en la pintura de figuras: luces cálidas, sombras frías.</p>
 
-      <h3>Contraste simultáneo</h3>
-      <p>El mismo color parece diferente según su fondo. Un gris neutro parece más cálido sobre fondo frío y más frío sobre fondo cálido.</p>
+      <p><strong>4. Contraste de complementarios (Complementary contrast):</strong> Los complementarios se intensifican mutuamente — cada uno hace que el otro parezca más vivo. Cuando ambos tienen igual saturación y value, generan vibración óptica: el ojo no puede enfocar ambos bordes simultáneamente. Para evitar la vibración: reduce la saturación de uno o cambia su value. Delacroix estudió este contraste décadas antes de que la ciencia lo explicara.</p>
+
+      <p><strong>5. Contraste simultáneo (Simultaneous contrast):</strong> Cada color "irradia" su complementario hacia los colores adyacentes. Un gris neutro sobre fondo rojo parece verdoso. El mismo gris sobre fondo verde parece rojizo. Este fenómeno explica por qué el "mismo" color se ve diferente según su entorno. Descubierto sistemáticamente por Chevreul en la manufactura Gobelin. Seurat construyó toda la teoría del Puntillismo sobre este principio.</p>
+
       <div class="sim-contrast-demo">
         <div class="sim-contrast-bg" style="background:#e67e22"><div class="sim-contrast-inner"></div></div>
         <div class="sim-contrast-bg" style="background:#2980b9"><div class="sim-contrast-inner"></div></div>
       </div>
       <p style="font-size:0.72rem;color:var(--text-muted)">El cuadrado gris es idéntico — el fondo cambia cómo lo percibimos</p>
 
-      <h3>Contraste de saturación</h3>
-      <p>Colocar un color muy saturado junto a colores desaturados hace que el primero "grite". Permite jerarquizar elementos.</p>
-      <div class="sat-contrast-row">
-        <div class="sat-swatch" style="background:#7a2c2c"></div>
-        <div class="sat-swatch" style="background:#8a3a3a"></div>
-        <span class="sat-arrow">→</span>
-        <div class="sat-swatch" style="background:#e74c3c;box-shadow:0 0 12px rgba(231,76,60,0.4)"></div>
-        <span class="sat-arrow">←</span>
-        <div class="sat-swatch" style="background:#7a2c2c"></div>
-        <div class="sat-swatch" style="background:#8a3a3a"></div>
+      <div class="lesson-callout">El experimento de Albers: toma el mismo color y colócalo sobre dos fondos distintos. Parece ser dos colores completamente diferentes. Este es el contraste simultáneo en acción. La lección: en pintura, ningún color existe de forma aislada. Todo color es el resultado de su contexto.</div>
+
+      <p><strong>6. Contraste de saturación (Saturation contrast):</strong> Un color puro y saturado junto a colores apagados o griseados. El saturado "grita" y domina visualmente. Es el contraste más eficiente para crear jerarquía y puntos focales. Un punto rojo saturado en una composición de grises y marrones atrae la mirada irresistiblemente. Los artistas de concept art y storyboard lo usan para guiar al espectador exactamente donde necesitan.</p>
+
+      <p><strong>7. Contraste de extensión / cantidad (Extension contrast):</strong> La proporción de área que ocupa cada color en la composición. Itten, basándose en los valores de luminosidad de Goethe, calculó las proporciones necesarias para equilibrar los contrastes:</p>
+
+      <div class="lesson-visual" style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.8rem;margin:0.8rem 0">
+        <div style="display:flex;flex-direction:column;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.8rem">
+            <div style="display:flex;gap:2px">
+              <div style="width:16px;height:20px;border-radius:1px;background:#f1c40f"></div>
+              <div style="width:48px;height:20px;border-radius:1px;background:#8e44ad"></div>
+            </div>
+            <div style="font-size:0.68rem;color:var(--text)">Amarillo : Violeta = <strong style="color:var(--accent)">1:3</strong> (el amarillo es 3× más luminoso)</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.8rem">
+            <div style="display:flex;gap:2px">
+              <div style="width:24px;height:20px;border-radius:1px;background:#e67e22"></div>
+              <div style="width:48px;height:20px;border-radius:1px;background:#2980b9"></div>
+            </div>
+            <div style="font-size:0.68rem;color:var(--text)">Naranja : Azul = <strong style="color:var(--accent)">1:2</strong></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.8rem">
+            <div style="display:flex;gap:2px">
+              <div style="width:32px;height:20px;border-radius:1px;background:#e74c3c"></div>
+              <div style="width:32px;height:20px;border-radius:1px;background:#27ae60"></div>
+            </div>
+            <div style="font-size:0.68rem;color:var(--text)">Rojo : Verde = <strong style="color:var(--accent)">1:1</strong> (igual luminosidad)</div>
+          </div>
+        </div>
       </div>
 
-      <div class="lesson-callout"><strong>Los impresionistas</strong> usaban el contraste simultáneo conscientemente — colocaban colores complementarios en pequeñas pinceladas para que vibren en el ojo del espectador.</div>
+      <p>Usar proporciones opuestas a estas crea desequilibrio intencionado — tensión visual que puede usarse expresivamente. Un gran campo violeta con un pequeño punto amarillo: drama. Un gran campo amarillo con un pequeño punto violeta: el violeta se pierde.</p>
+
+      <h3>Aplicación práctica: el análisis de obras maestras</h3>
+      <p>Analizar cualquier obra de arte exitosa a través de los 7 contrastes revela su estructura invisible. "El beso" de Klimt: contraste de extensión (pequeña figura humana en gran campo decorativo) + contraste de saturación (oro vivo contra fondos apagados). "Guernica" de Picasso: contraste claro-oscuro extremo (sin color, solo values) como declaración de que la violencia destruye el color de la vida.</p>
+
+      <p>La práctica recomendada: cuando analices una obra que te impacte, pregunta para cada uno de los 7 contrastes: ¿está presente? ¿en qué proporción? ¿qué efecto produce? Esta disección entrenará tu ojo para construir tus propias composiciones con intención.</p>
     `,
-    quiz: [
+    level1: [
       {
         type: 'multiple',
         q: '¿Qué es el contraste simultáneo?',
@@ -1777,6 +2379,75 @@ const LESSONS = {
         opts: ['Albert Munsell','Isaac Newton','Johannes Itten','Josef Albers'],
         correct: 2
       }
+    ],
+    level2: [
+      {
+        type: 'multiple',
+        q: 'Itten identificó 7 tipos de contraste. ¿Cuál de estos NO es uno de ellos?',
+        opts: ['Contraste de cantidad','Contraste de extensión','Contraste de textura','Contraste simultáneo'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'El "contraste de extensión" de Itten se refiere a:',
+        opts: ['El tamaño físico del lienzo','La proporción relativa de cada color en la composición para lograr equilibrio visual','La distancia entre colores en la rueda','El número de colores usados'],
+        correct: 1
+      },
+      {
+        type: 'visual-pick',
+        q: '¿Cuál composición usa mejor el contraste de saturación para crear jerarquía?',
+        opts: [
+          { label:'Todos igualmente saturados',        colors:['#e74c3c','#27ae60','#2980b9'] },
+          { label:'Un vívido contra desaturados',      colors:['#e74c3c','#7a8a7a','#6a7a8a'] },
+          { label:'Todos desaturados',                 colors:['#8a6a6a','#6a8a6a','#6a6a8a'] },
+          { label:'Todos muy oscuros',                 colors:['#3a1a1a','#1a3a1a','#1a1a3a'] }
+        ],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Los impresionistas aplicaban colores complementarios en pinceladas pequeñas y separadas para:',
+        opts: ['Ahorrar pintura','Crear mezcla óptica que se percibe más vibrante que la mezcla física','Imitar el arte japonés','Simplificar su técnica'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué contraste de Itten se produce cuando un gris medio parece más claro sobre fondo oscuro que sobre fondo claro?',
+        opts: ['Contraste de saturación','Contraste de tono','Contraste simultáneo','Contraste cálido-frío'],
+        correct: 2
+      }
+    ],
+    level3: [
+      {
+        type: 'multiple',
+        q: 'Según las proporciones de Itten para el contraste de extensión, ¿qué proporción equilibra visualmente el amarillo frente al violeta?',
+        opts: ['1:1','1:2','1:3','2:3'],
+        correct: 2
+      },
+      {
+        type: 'multiple',
+        q: 'El fenómeno de "irradiación" (color irradiation) ocurre cuando:',
+        opts: ['Un color ilumina físicamente el espacio','Un color claro sobre fondo oscuro parece más grande de lo que realmente es','Dos colores complementarios se anulan','Un color desaturado absorbe los colores adyacentes'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'Josef Albers en "Interaction of Color" (1963) demostró principalmente que:',
+        opts: ['El color tiene propiedades físicas absolutas','La percepción del color es completamente relativa a su contexto','Los colores primarios son los más importantes','El contraste de valor es el único contraste real'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: 'El "contraste de complementarios" genera el máximo de vibración visual cuando ambos colores:',
+        opts: ['Tienen valores muy diferentes','Tienen el mismo value y alta saturación','Uno está desaturado','Tienen diferentes temperaturas'],
+        correct: 1
+      },
+      {
+        type: 'multiple',
+        q: '¿Qué técnica usó Georges Seurat basándose directamente en las teorías de contraste simultáneo de Chevreul?',
+        opts: ['Sfumato','Impasto','Puntillismo (Pointillism / Chromoluminarism)','Grisalla'],
+        correct: 2
+      }
     ]
   }
 };
@@ -1787,13 +2458,25 @@ const LESSONS = {
 function buildTopicCards() {
   const grid = document.getElementById('topicGrid');
   grid.innerHTML = '';
-  const progress = getProgress();
   const showBadge = allZero();
 
   TOPICS.forEach((t, idx) => {
-    const score = progress[t.id] || 0;
-    const pct   = Math.round((score / 5) * 100);
-    const btnLabel = score > 0 ? 'Continuar' : 'Comenzar';
+    const s1 = getTopicLevelScore(t.id, 1);
+    const s2 = getTopicLevelScore(t.id, 2);
+    const s3 = getTopicLevelScore(t.id, 3);
+    const bestScore = Math.max(s1, s2, s3);
+    const pct = Math.round((bestScore / 5) * 100);
+    const btnLabel = bestScore > 0 ? 'Continuar' : 'Comenzar';
+
+    // Level dots: dot is 'perfect' if score===5, 'done' if score>=3, empty otherwise
+    const dotClass1 = s1 === 5 ? 'perfect' : s1 >= 3 ? 'done' : '';
+    const dotClass2 = s2 === 5 ? 'perfect' : s2 >= 3 ? 'done' : '';
+    const dotClass3 = s3 === 5 ? 'perfect' : s3 >= 3 ? 'done' : '';
+    const levelDotsHTML = `<div class="topic-level-dots">
+      <div class="topic-level-dot ${dotClass1}" title="Nivel 1 Básico: ${s1}/5"></div>
+      <div class="topic-level-dot ${dotClass2}" title="Nivel 2 Intermedio: ${s2}/5"></div>
+      <div class="topic-level-dot ${dotClass3}" title="Nivel 3 Avanzado: ${s3}/5"></div>
+    </div>`;
 
     // Visual
     let visualHTML = '';
@@ -1810,7 +2493,7 @@ function buildTopicCards() {
 
     const badgeHTML = (idx === 0 && showBadge)
       ? `<span class="topic-badge">★ Empieza aquí</span>` : '';
-    const starHTML = score === 5
+    const starHTML = (s1 === 5 && s2 === 5 && s3 === 5)
       ? `<span class="topic-complete-badge" style="display:inline">★</span>` : '';
 
     const card = document.createElement('div');
@@ -1825,8 +2508,8 @@ function buildTopicCards() {
       ${visualHTML}
       <div class="topic-progress-wrap">
         <div class="topic-progress-label">
-          <span class="topic-progress-text">Progreso</span>
-          <span class="topic-progress-score">${score}/5</span>
+          <span class="topic-progress-text">Mejor resultado</span>
+          <span class="topic-progress-score" style="display:flex;align-items:center;gap:0.4rem">${bestScore}/5${levelDotsHTML}</span>
         </div>
         <div class="topic-progress-track">
           <div class="topic-progress-fill" style="width:${pct}%"></div>
@@ -1855,12 +2538,14 @@ function buildTopicCards() {
 // LESSON / QUIZ STATE
 // ══════════════════════════════════════════════
 let currentTopicId   = null;
+let currentLevel     = 1;
 let currentQuestion  = 0;
 let answeredCount    = 0;
 let correctCount     = 0;
 
 function openLesson(topicId) {
   currentTopicId  = topicId;
+  currentLevel    = 1;
   currentQuestion = 0;
   answeredCount   = 0;
   correctCount    = 0;
@@ -1871,7 +2556,7 @@ function openLesson(topicId) {
   // Update header
   document.getElementById('lessonNumLabel').textContent   = topic.num;
   document.getElementById('lessonTitleLabel').textContent = topic.title;
-  document.getElementById('lessonProgressInfo').textContent = '0 / 5 preguntas';
+  document.getElementById('lessonProgressInfo').textContent = 'Elige un nivel';
 
   // Inject content
   document.getElementById('lessonContent').innerHTML = lesson.content;
@@ -1881,6 +2566,73 @@ function openLesson(topicId) {
   document.getElementById('lessonView').classList.add('active');
   document.getElementById('backSection').style.display = 'none';
 
+  // Show difficulty selector, hide quiz
+  document.getElementById('quizSection').style.display    = 'none';
+  document.getElementById('difficultySelect').style.display = 'block';
+
+  // Render difficulty selector with lock state
+  renderDifficultySelector(topicId);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderDifficultySelector(topicId) {
+  const levelNames = ['Básico', 'Intermedio', 'Avanzado'];
+  const btns = document.querySelectorAll('#diffOptions .diff-btn');
+  btns.forEach((btn, i) => {
+    const level = i + 1;
+    const unlocked = isLevelUnlocked(topicId, level);
+    const score = getTopicLevelScore(topicId, level);
+    btn.classList.remove('active', 'locked');
+    // Remove any old lock/score spans
+    const existing = btn.querySelector('.diff-lock');
+    if (existing) existing.remove();
+    const existingScore = btn.querySelector('.diff-score');
+    if (existingScore) existingScore.remove();
+
+    if (!unlocked) {
+      btn.classList.add('locked');
+      const lockSpan = document.createElement('span');
+      lockSpan.className = 'diff-lock';
+      lockSpan.textContent = level === 2 ? '🔒 Completa Básico ≥3/5' : '🔒 Completa Intermedio ≥3/5';
+      btn.appendChild(lockSpan);
+    } else if (score > 0) {
+      const scoreSpan = document.createElement('span');
+      scoreSpan.className = 'diff-score';
+      scoreSpan.style.cssText = 'font-size:0.6rem;color:var(--accent);margin-top:0.1rem';
+      scoreSpan.textContent = 'Mejor: ' + score + '/5';
+      btn.appendChild(scoreSpan);
+    }
+
+    btn.onclick = function() {
+      if (!isLevelUnlocked(topicId, parseInt(this.dataset.level))) return;
+      btns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    };
+  });
+  // Default active = level 1
+  btns[0].classList.add('active');
+}
+
+function startQuizWithLevel() {
+  const activeBtn = document.querySelector('#diffOptions .diff-btn.active');
+  if (!activeBtn) return;
+  const level = parseInt(activeBtn.dataset.level);
+  if (!isLevelUnlocked(currentTopicId, level)) return;
+
+  currentLevel    = level;
+  currentQuestion = 0;
+  answeredCount   = 0;
+  correctCount    = 0;
+
+  const levelNames = ['', 'Básico', 'Intermedio', 'Avanzado'];
+  document.getElementById('lessonProgressInfo').textContent = '0 / 5 preguntas';
+  document.getElementById('quizTitleLabel').textContent = 'Quiz · Nivel ' + level + ' — ' + levelNames[level];
+
+  // Hide difficulty selector, show quiz
+  document.getElementById('difficultySelect').style.display = 'none';
+  document.getElementById('quizSection').style.display      = 'block';
+
   // Reset quiz UI
   document.getElementById('quizResults').classList.remove('show');
   document.getElementById('quizQuestionArea').style.display = 'block';
@@ -1889,13 +2641,14 @@ function openLesson(topicId) {
   document.getElementById('quizNextBtn').classList.remove('show');
 
   showQuestion(0);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closeLesson() {
   document.getElementById('lessonView').classList.remove('active');
-  document.getElementById('topicMap').style.display    = '';
-  document.getElementById('backSection').style.display = '';
+  document.getElementById('topicMap').style.display        = '';
+  document.getElementById('backSection').style.display     = '';
+  document.getElementById('difficultySelect').style.display = 'none';
+  document.getElementById('quizSection').style.display     = '';
   buildTopicCards();
   window.scrollTo({ top: document.getElementById('topicMap').offsetTop - 90, behavior: 'smooth' });
 }
@@ -1905,10 +2658,14 @@ document.getElementById('lessonBackBtn').addEventListener('click', closeLesson);
 // ══════════════════════════════════════════════
 // QUIZ RENDERING
 // ══════════════════════════════════════════════
+function getActiveQuestions() {
+  return LESSONS[currentTopicId]['level' + currentLevel];
+}
+
 function showQuestion(idx) {
-  const lesson = LESSONS[currentTopicId];
-  const q      = lesson.quiz[idx];
-  const total  = lesson.quiz.length;
+  const questions = getActiveQuestions();
+  const q         = questions[idx];
+  const total     = questions.length;
 
   document.getElementById('quizCounter').textContent      = `Pregunta ${idx + 1} de ${total}`;
   document.getElementById('lessonProgressInfo').textContent = `${answeredCount} / ${total} preguntas`;
@@ -1989,16 +2746,17 @@ function handleAnswer(chosen, q, grid) {
     fb.className = 'quiz-feedback show fail';
   }
 
-  document.getElementById('lessonProgressInfo').textContent = `${answeredCount} / ${LESSONS[currentTopicId].quiz.length} preguntas`;
+  const activeQs = getActiveQuestions();
+  document.getElementById('lessonProgressInfo').textContent = `${answeredCount} / ${activeQs.length} preguntas`;
 
   const nextBtn = document.getElementById('quizNextBtn');
-  const isLast  = currentQuestion >= LESSONS[currentTopicId].quiz.length - 1;
+  const isLast  = currentQuestion >= activeQs.length - 1;
   nextBtn.textContent = isLast ? 'Ver resultado →' : 'Siguiente →';
   nextBtn.classList.add('show');
 }
 
 document.getElementById('quizNextBtn').addEventListener('click', () => {
-  const total = LESSONS[currentTopicId].quiz.length;
+  const total = getActiveQuestions().length;
   currentQuestion++;
   if (currentQuestion >= total) {
     showResults();
@@ -2012,29 +2770,43 @@ document.getElementById('quizNextBtn').addEventListener('click', () => {
 // ══════════════════════════════════════════════
 function showResults() {
   const topic = TOPICS.find(t => t.id === currentTopicId);
+  const levelNames = ['', 'Básico', 'Intermedio', 'Avanzado'];
+  const total = getActiveQuestions().length;
 
-  // Save to localStorage
-  setTopicScore(currentTopicId, correctCount);
+  // Save to localStorage (per level — only save if better than existing)
+  const prevScore = getTopicLevelScore(currentTopicId, currentLevel);
+  if (correctCount > prevScore) {
+    setTopicScore(currentTopicId, currentLevel, correctCount);
+  }
 
   // Hide question area
   document.getElementById('quizQuestionArea').style.display = 'none';
 
   const ring = document.getElementById('resultsRing');
   ring.className = 'results-score-ring';
-  if (correctCount === 5)      ring.classList.add('perfect');
-  else if (correctCount >= 3)  ring.classList.add('good');
-  else                         ring.classList.add('retry');
+  if (correctCount === total)      ring.classList.add('perfect');
+  else if (correctCount >= 3)      ring.classList.add('good');
+  else                             ring.classList.add('retry');
 
   document.getElementById('resultsNum').textContent = correctCount;
 
   const msgs = {
-    5: ['¡Perfecto!', 'Dominaste este tema completamente. Estás listo para el siguiente.'],
+    perfect: ['¡Perfecto!', 'Dominaste este nivel completamente.'],
     good: ['Buen trabajo', 'Entiendes bien los conceptos principales. Un repaso rápido y lo tendrás perfectamente.'],
     retry: ['Sigue practicando', 'Estos conceptos necesitan un poco más de tiempo. Te recomendamos releer el contenido y volver a intentarlo.']
   };
-  const [msg, sub] = correctCount === 5 ? msgs[5] : correctCount >= 3 ? msgs.good : msgs.retry;
+  const [msg, sub] = correctCount === total ? msgs.perfect : correctCount >= 3 ? msgs.good : msgs.retry;
   document.getElementById('resultsMsg').textContent = msg;
   document.getElementById('resultsSub').textContent = sub;
+
+  // Level badge
+  const existingBadge = document.getElementById('resultsLevelBadge');
+  if (existingBadge) existingBadge.remove();
+  const badge = document.createElement('div');
+  badge.id = 'resultsLevelBadge';
+  badge.className = 'results-level-badge';
+  badge.textContent = `Nivel ${currentLevel} · ${levelNames[currentLevel]} · ${correctCount}/${total}`;
+  document.getElementById('resultsRing').insertAdjacentElement('afterend', badge);
 
   // Action buttons
   const actions = document.getElementById('resultsActions');
@@ -2046,6 +2818,7 @@ function showResults() {
   btnBack.addEventListener('click', closeLesson);
   actions.appendChild(btnBack);
 
+  // Retry same level
   if (correctCount < 3) {
     const btnRetry = document.createElement('button');
     btnRetry.className = 'results-btn results-btn-primary';
@@ -2054,13 +2827,38 @@ function showResults() {
     actions.appendChild(btnRetry);
   }
 
-  // Next lesson button
+  // Unlock next level button (if score >=3 and next level exists and not yet unlocked)
+  const nextLevel = currentLevel + 1;
+  if (correctCount >= 3 && nextLevel <= 3) {
+    const nextLevelNames = ['', 'Básico', 'Intermedio', 'Avanzado'];
+    const btnNextLevel = document.createElement('button');
+    btnNextLevel.className = 'results-btn results-btn-primary';
+    const wasLocked = !isLevelUnlocked(currentTopicId, nextLevel);
+    // Re-check after save — after setting score the unlock should be re-evaluated
+    // We saved above, so re-check:
+    const nowUnlocked = getTopicLevelScore(currentTopicId, currentLevel) >= 3;
+    if (nowUnlocked) {
+      btnNextLevel.textContent = `→ Intentar Nivel ${nextLevel}: ${nextLevelNames[nextLevel]}`;
+      btnNextLevel.addEventListener('click', () => {
+        openLesson(currentTopicId);
+        // Pre-select the next level after render
+        setTimeout(() => {
+          const btns = document.querySelectorAll('#diffOptions .diff-btn');
+          btns.forEach(b => b.classList.remove('active'));
+          btns[nextLevel - 1].classList.add('active');
+        }, 50);
+      });
+      actions.appendChild(btnNextLevel);
+    }
+  }
+
+  // Next topic button
   const topicIdx  = TOPICS.findIndex(t => t.id === currentTopicId);
   const nextTopic = TOPICS[topicIdx + 1];
   if (nextTopic) {
     const btnNext = document.createElement('button');
-    btnNext.className = 'results-btn results-btn-primary';
-    btnNext.textContent = `Siguiente: ${nextTopic.title} →`;
+    btnNext.className = 'results-btn results-btn-secondary';
+    btnNext.textContent = `Siguiente tema: ${nextTopic.title} →`;
     btnNext.addEventListener('click', () => openLesson(nextTopic.id));
     actions.appendChild(btnNext);
   }
@@ -2076,7 +2874,7 @@ function showResults() {
 
   // Update progress bar on counter
   document.getElementById('quizProgressFill').style.width = '100%';
-  document.getElementById('quizCounter').textContent = `${correctCount} / 5 correctas`;
+  document.getElementById('quizCounter').textContent = `${correctCount} / ${total} correctas`;
 }
 </script>
 </body>
