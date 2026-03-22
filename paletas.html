@@ -1,0 +1,4261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paletas de Color</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --bg:        #08090b;
+  --surface:   #101214;
+  --surface2:  #181a1d;
+  --border:    #222528;
+  --text:      #dddcda;
+  --text-muted:#878c97;
+  --accent:    #c97a2f;
+  --accent-dk: #9a5c22;
+  --white:     #ffffff;
+  --font:      'Montserrat', 'Segoe UI', system-ui, sans-serif;
+  --ease:      cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+}
+
+img { display: block; max-width: 100%; }
+a   { text-decoration: none; color: inherit; }
+ul  { list-style: none; }
+
+/* ═══════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════ */
+#cursor-dot {
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(201,122,47,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: width 0.35s var(--ease), height 0.35s var(--ease), border-color 0.35s;
+}
+body.cursor-hover #cursor-ring {
+  width: 58px; height: 58px;
+  border-color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav.site-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.6rem 4rem;
+  transition: background 0.4s, padding 0.4s, backdrop-filter 0.4s;
+}
+nav.site-nav.scrolled {
+  background: rgba(8,9,11,0.94);
+  backdrop-filter: blur(14px);
+  padding: 0.9rem 4rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.nav-logo {
+  font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent);
+}
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a {
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.38);
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0; right: 0;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 0.3s var(--ease);
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  min-height: 60vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 0 4rem;
+}
+
+.hero-bg-text {
+  position: absolute;
+  font-size: clamp(14rem, 28vw, 30rem);
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  user-select: none;
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  will-change: transform;
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 1100px; width: 100%;
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 1.5rem;
+}
+
+.hero-eyebrow {
+  font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.7s 0.2s, transform 0.7s 0.2s var(--ease);
+}
+.hero-eyebrow.in { opacity: 1; transform: none; }
+
+.hero-title {
+  font-size: clamp(3.2rem, 8vw, 8rem);
+  font-weight: 900; line-height: 0.9;
+  letter-spacing: -0.04em; text-transform: uppercase;
+}
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .line span {
+  display: block;
+  transform: translateY(110%);
+  transition: transform 1s var(--ease);
+}
+.hero-title .line:nth-child(2) span { transition-delay: 0.12s; }
+.hero-title .line span.accent {
+  background: linear-gradient(to right, #ff0000, #ff6600, #ffcc00, #00cc44, #00cccc, #0066ff, #8800ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.05em;
+}
+
+.hero-desc {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.3);
+  line-height: 2;
+  max-width: 500px;
+  letter-spacing: 0.03em;
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.8s 0.6s, transform 0.8s 0.6s var(--ease);
+}
+.hero-desc.in { opacity: 1; transform: none; }
+
+.hero-nav-pills {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.7s 0.85s, transform 0.7s 0.85s var(--ease);
+}
+.hero-nav-pills.in { opacity: 1; transform: none; }
+.hero-pill {
+  font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.3rem 0.85rem; border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.hero-pill:hover { color: var(--accent); border-color: rgba(201,122,47,0.5); }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2.5rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  opacity: 0.25;
+  font-size: 0.58rem; letter-spacing: 0.32em; text-transform: uppercase;
+  animation: scrollBounce 2.2s ease-in-out infinite;
+}
+.hero-scroll-line { width: 1px; height: 38px; background: rgba(255,255,255,0.35); }
+@keyframes scrollBounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(7px); }
+}
+
+/* ═══════════════════════════════════════════
+   MAIN + SECTION WRAPPERS
+═══════════════════════════════════════════ */
+main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+.section-anchor { scroll-margin-top: 80px; }
+
+.section-wrap {
+  position: relative;
+  padding: 4rem 0 2rem;
+}
+
+.section-bg-num {
+  position: absolute;
+  top: -1.5rem; left: -1rem;
+  font-size: clamp(7rem, 14vw, 17rem);
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  user-select: none; pointer-events: none;
+  line-height: 1; letter-spacing: -0.05em;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION TITLE — REVEAL
+═══════════════════════════════════════════ */
+.section-title {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.26em;
+  text-transform: uppercase; color: var(--accent);
+  border-left: 3px solid var(--accent); padding-left: 0.7rem;
+  margin-bottom: 1.8rem;
+  opacity: 0; transform: translateX(-16px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.section-title.in { opacity: 1; transform: none; }
+
+/* ═══════════════════════════════════════════
+   SCROLL REVEAL — GENERIC
+═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 0.12s; }
+.reveal-d2 { transition-delay: 0.24s; }
+.reveal-d3 { transition-delay: 0.36s; }
+
+/* ═══════════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════════ */
+.controls {
+  display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+}
+.control-group { display: flex; flex-direction: column; gap: 0.4rem; }
+.control-group label {
+  font-size: 0.68rem; color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+/* ── Base color expanded picker ── */
+.bcp-wrap { display: flex; flex-direction: column; gap: 0.4rem; position: relative; }
+.bcp-tabs { display: flex; gap: 2px; }
+.bcp-tab {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.25rem 0.65rem; border-radius: 2px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  font-family: var(--font); transition: all 0.15s;
+}
+.bcp-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.15); transform: none; }
+.bcp-tab.active { background: rgba(201,122,47,0.12); color: var(--accent); border-color: rgba(201,122,47,0.4); }
+
+.bcp-row { display: flex; align-items: center; gap: 0.5rem; }
+.bcp-swatch {
+  width: 38px; height: 38px; border-radius: 3px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.1); cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.bcp-swatch input[type="color"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.bcp-hex-input {
+  width: 90px; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: monospace; font-size: 0.82rem;
+  padding: 0.4rem 0.55rem; border-radius: 3px; outline: none;
+  transition: border-color 0.15s;
+}
+.bcp-hex-input:focus { border-color: rgba(201,122,47,0.5); }
+.bcp-hex-input.invalid { border-color: rgba(220,50,50,0.6); color: #e07070; }
+
+/* Vallejo catalog panel */
+.bcp-vallejo-wrap { position: relative; }
+.bcp-vallejo-search {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font); font-size: 0.76rem;
+  padding: 0.4rem 0.7rem; border-radius: 3px; outline: none;
+  transition: border-color 0.15s;
+}
+.bcp-vallejo-search:focus { border-color: rgba(201,122,47,0.5); }
+.bcp-vallejo-list {
+  max-height: 220px; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 3px; margin-top: 0.35rem;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.bcp-vallejo-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.35rem 0.6rem; cursor: pointer;
+  transition: background 0.1s;
+}
+.bcp-vallejo-item:hover { background: var(--surface2); }
+.bcp-vallejo-item.selected { background: rgba(201,122,47,0.1); }
+.bcp-vallejo-dot {
+  width: 22px; height: 22px; border-radius: 2px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.bcp-vallejo-info { display: flex; flex-direction: column; gap: 0.05rem; }
+.bcp-vallejo-code { font-size: 0.58rem; color: var(--accent); font-weight: 700; }
+.bcp-vallejo-name { font-size: 0.7rem; color: var(--text); }
+.bcp-panel { display: none; }
+.bcp-panel.active { display: flex; flex-direction: column; gap: 0.4rem; }
+.bcp-wrap { min-width: 260px; }
+
+/* ── HSV sliders ── */
+.bcp-hsv { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+.bcp-hsv-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.bcp-hsv-label-row { display: flex; justify-content: space-between; align-items: baseline; }
+.bcp-hsv-label { font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.bcp-hsv-num { font-size: 0.68rem; color: var(--accent); font-family: monospace; font-weight: 700; }
+.bcp-hue-track, .bcp-sat-track, .bcp-val-track {
+  height: 14px; border-radius: 7px; position: relative;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center;
+}
+.bcp-hue-track {
+  background: linear-gradient(to right,
+    hsl(0,100%,50%), hsl(30,100%,50%), hsl(60,100%,50%),
+    hsl(90,100%,50%), hsl(120,100%,50%), hsl(150,100%,50%),
+    hsl(180,100%,50%), hsl(210,100%,50%), hsl(240,100%,50%),
+    hsl(270,100%,50%), hsl(300,100%,50%), hsl(330,100%,50%),
+    hsl(360,100%,50%));
+}
+.bcp-hue-track input[type="range"],
+.bcp-sat-track input[type="range"],
+.bcp-val-track input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 100%; background: transparent;
+  cursor: pointer; margin: 0; padding: 0; position: absolute; inset: 0;
+  border-radius: 7px;
+}
+.bcp-hue-track input[type="range"]::-webkit-slider-runnable-track,
+.bcp-sat-track input[type="range"]::-webkit-slider-runnable-track,
+.bcp-val-track input[type="range"]::-webkit-slider-runnable-track { background: transparent; }
+.bcp-hue-track input[type="range"]::-moz-range-track,
+.bcp-sat-track input[type="range"]::-moz-range-track,
+.bcp-val-track input[type="range"]::-moz-range-track { background: transparent; height: 14px; }
+.bcp-hue-track input[type="range"]::-webkit-slider-thumb,
+.bcp-sat-track input[type="range"]::-webkit-slider-thumb,
+.bcp-val-track input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; border: 2px solid rgba(0,0,0,0.3);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.7); cursor: pointer;
+}
+.bcp-hue-track input[type="range"]::-moz-range-thumb,
+.bcp-sat-track input[type="range"]::-moz-range-thumb,
+.bcp-val-track input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; border: 2px solid rgba(0,0,0,0.3);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.7); cursor: pointer;
+}
+/* HSV footer */
+.bcp-hsv-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.6rem; margin-top: 0.1rem; flex-wrap: wrap;
+}
+.bcp-suggest-btn {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  background: transparent; color: var(--accent); border: 1px solid rgba(201,122,47,0.35);
+  padding: 0.25rem 0.6rem; border-radius: 2px; cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.bcp-suggest-btn:hover { background: rgba(201,122,47,0.1); transform: none; }
+.bcp-chosen { display: flex; align-items: center; gap: 0.45rem; }
+.bcp-chosen-label { font-size: 0.58rem; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.bcp-chosen-swatch { width: 34px; height: 34px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.1); }
+.bcp-chosen-hex { font-size: 0.65rem; font-family: monospace; color: var(--text-muted); }
+/* Suggestions */
+.bcp-suggest-panel { border-top: 1px solid var(--border); padding-top: 0.55rem; }
+.bcp-suggest-title { font-size: 0.58rem; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.bcp-suggest-list { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.bcp-suggest-item {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0.28rem 0.45rem; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.bcp-suggest-item:hover { border-color: rgba(201,122,47,0.4); }
+.bcp-suggest-dot { width: 18px; height: 18px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.bcp-suggest-code { font-size: 0.56rem; color: var(--accent); font-weight: 700; }
+.bcp-suggest-name { font-size: 0.62rem; color: var(--text); }
+/* Glossary */
+.bcp-glossary { border-top: 1px solid var(--border); padding-top: 0.5rem; }
+.bcp-glossary-summary {
+  font-size: 0.62rem; color: var(--text-muted); cursor: pointer;
+  letter-spacing: 0.06em; list-style: none; display: flex; align-items: center; gap: 0.35rem;
+  user-select: none;
+}
+.bcp-glossary-summary::-webkit-details-marker { display: none; }
+.bcp-glossary-summary::before {
+  content: '?'; display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1px solid currentColor; font-size: 0.55rem; font-weight: 700; flex-shrink: 0;
+}
+.bcp-glossary[open] .bcp-glossary-summary { color: var(--accent); }
+.bcp-glossary-body { margin-top: 0.65rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.bcp-glossary-item { display: flex; flex-direction: column; gap: 0.12rem; }
+.bcp-gterm { font-size: 0.66rem; font-weight: 700; color: var(--accent); }
+.bcp-gdesc { font-size: 0.65rem; color: var(--text-muted); line-height: 1.45; }
+input[type="color"] {
+  width: 56px; height: 42px; border: 2px solid var(--border);
+  border-radius: 4px; cursor: pointer; background: none; padding: 2px;
+  transition: border-color 0.2s;
+}
+input[type="color"]:hover { border-color: var(--accent); }
+select {
+  background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.5rem 0.8rem; font-size: 0.82rem;
+  font-family: var(--font); cursor: pointer; min-width: 220px;
+  transition: border-color 0.2s;
+}
+select:focus { outline: none; border-color: var(--accent); }
+button {
+  background: var(--accent); color: #fff; border: none; border-radius: 4px;
+  padding: 0.55rem 1.3rem; font-size: 0.8rem; font-family: var(--font);
+  cursor: pointer; letter-spacing: 0.07em; font-weight: 600;
+  transition: background 0.2s, transform 0.18s;
+}
+button:hover { background: var(--accent-dk); transform: translateY(-1px); }
+
+.system-hint {
+  font-size: 0.68rem; color: var(--accent); margin-bottom: 0.5rem;
+  background: rgba(201,122,47,0.07); border-left: 2px solid var(--accent);
+  padding: 0.35rem 0.8rem; border-radius: 0 3px 3px 0;
+  letter-spacing: 0.01em;
+}
+.system-description {
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.2rem;
+  background: var(--surface); border-left: 3px solid var(--border);
+  padding: 0.6rem 1rem; border-radius: 0 4px 4px 0;
+}
+
+/* ═══════════════════════════════════════════
+   SWATCHES — with CSS entrance animation
+═══════════════════════════════════════════ */
+.swatches-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+
+.swatch-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+  animation: swatchIn 0.45s var(--ease) both;
+}
+@keyframes swatchIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+.swatches-row .swatch-wrap:nth-child(1) { animation-delay: 0.04s; }
+.swatches-row .swatch-wrap:nth-child(2) { animation-delay: 0.08s; }
+.swatches-row .swatch-wrap:nth-child(3) { animation-delay: 0.12s; }
+.swatches-row .swatch-wrap:nth-child(4) { animation-delay: 0.16s; }
+.swatches-row .swatch-wrap:nth-child(5) { animation-delay: 0.20s; }
+.swatches-row .swatch-wrap:nth-child(6) { animation-delay: 0.24s; }
+.swatches-row .swatch-wrap:nth-child(7) { animation-delay: 0.28s; }
+.swatches-row .swatch-wrap:nth-child(8) { animation-delay: 0.32s; }
+
+.swatch {
+  width: 72px; height: 72px; border-radius: 5px; cursor: pointer;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s;
+  position: relative; border: 2px solid transparent; overflow: hidden;
+}
+.swatch:hover {
+  transform: translateY(-5px) scale(1.07);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.65);
+  border-color: rgba(255,255,255,0.14);
+}
+.swatch-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.18s; padding: 4px;
+}
+.swatch:hover .swatch-overlay { opacity: 1; }
+.swatch-overlay-text { font-size: 0.62rem; color: #fff; text-align: center; font-weight: 600; line-height: 1.3; }
+.swatch-label { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.swatch-hex { font-size: 0.65rem; color: var(--text-muted); font-family: monospace; letter-spacing: 0.05em; }
+.swatch-role { font-size: 0.6rem; color: #606470; text-align: center; max-width: 72px; }
+.swatch-add-btn {
+  font-size: 0.6rem; background: none; color: var(--accent); border: none;
+  padding: 0; cursor: pointer; opacity: 0; transition: opacity 0.15s;
+  letter-spacing: 0.04em; font-family: var(--font);
+}
+.swatch-wrap:hover .swatch-add-btn { opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   COLOR WHEEL
+═══════════════════════════════════════════ */
+.wheel-filter-btn {
+  font-size: 0.65rem; padding: 0.25rem 0.75rem; border-radius: 2px;
+  background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s; font-family: var(--font); font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.wheel-filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.wheel-filter-btn:hover { transform: none; background: var(--surface); color: var(--text); }
+.wheel-filter-btn.active:hover { background: var(--accent-dk); color: #fff; border-color: var(--accent-dk); }
+
+.wheel-tooltip {
+  position: fixed; z-index: 500;
+  background: #141618; border: 1px solid #2a2d31;
+  border-radius: 4px; padding: 0.75rem 1rem;
+  max-width: 240px; pointer-events: none;
+  opacity: 0; transition: opacity 0.15s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+}
+.wheel-tooltip.visible { opacity: 1; }
+.wheel-tooltip-title { font-size: 0.72rem; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+.wheel-tooltip-desc { font-size: 0.75rem; color: var(--text); line-height: 1.5; margin-bottom: 0.5rem; }
+.wheel-tooltip-use {
+  font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;
+  border-top: 1px solid #2a2d31; padding-top: 0.4rem;
+}
+.wheel-tooltip-use strong { color: #888; }
+
+/* ═══════════════════════════════════════════
+   RELATED ARTISTS PANEL
+═══════════════════════════════════════════ */
+.related-panel {
+  display: none; background: var(--surface);
+  border: 1px solid rgba(201,122,47,0.28); border-radius: 4px;
+  padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+}
+.related-panel-title { font-size: 0.65rem; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.8rem; }
+.related-list { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+.related-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.5rem 0.7rem; cursor: default;
+  transition: border-color 0.15s;
+}
+.related-item:hover { border-color: #606470; }
+.related-mini-swatches { display: flex; gap: 3px; }
+.related-mini-sw { width: 14px; height: 32px; border-radius: 2px; }
+.related-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.related-name { font-size: 0.72rem; color: var(--text); }
+.related-score { font-size: 0.65rem; color: var(--accent); font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   SECTION 2 — ARTISTS
+═══════════════════════════════════════════ */
+.sort-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; align-items: center; }
+.filter-btn {
+  background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+  border-radius: 2px; padding: 0.3rem 0.85rem; font-size: 0.68rem;
+  font-family: var(--font); font-weight: 600; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.15s; text-transform: uppercase;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); transform: none; }
+.sort-label { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; }
+
+.artists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; }
+
+/* Artist card — CSS entrance animation so it fires on every render */
+.artist-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; overflow: hidden;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s, transform 0.25s var(--ease);
+  animation: cardIn 0.5s var(--ease) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+.artists-grid .artist-card:nth-child(1)  { animation-delay: 0.00s; }
+.artists-grid .artist-card:nth-child(2)  { animation-delay: 0.02s; }
+.artists-grid .artist-card:nth-child(3)  { animation-delay: 0.04s; }
+.artists-grid .artist-card:nth-child(4)  { animation-delay: 0.06s; }
+.artists-grid .artist-card:nth-child(5)  { animation-delay: 0.08s; }
+.artists-grid .artist-card:nth-child(6)  { animation-delay: 0.10s; }
+.artists-grid .artist-card:nth-child(7)  { animation-delay: 0.12s; }
+.artists-grid .artist-card:nth-child(8)  { animation-delay: 0.14s; }
+.artists-grid .artist-card:nth-child(9)  { animation-delay: 0.16s; }
+.artists-grid .artist-card:nth-child(10) { animation-delay: 0.18s; }
+.artists-grid .artist-card:nth-child(11) { animation-delay: 0.20s; }
+.artists-grid .artist-card:nth-child(12) { animation-delay: 0.22s; }
+.artists-grid .artist-card:nth-child(13) { animation-delay: 0.24s; }
+.artists-grid .artist-card:nth-child(14) { animation-delay: 0.26s; }
+.artists-grid .artist-card:nth-child(15) { animation-delay: 0.28s; }
+.artists-grid .artist-card:nth-child(16) { animation-delay: 0.30s; }
+.artists-grid .artist-card:nth-child(17) { animation-delay: 0.32s; }
+.artists-grid .artist-card:nth-child(18) { animation-delay: 0.34s; }
+.artists-grid .artist-card:nth-child(19) { animation-delay: 0.37s; }
+.artists-grid .artist-card:nth-child(20) { animation-delay: 0.40s; }
+
+.artist-card:hover {
+  border-color: rgba(201,122,47,0.35);
+  box-shadow: 0 8px 36px rgba(0,0,0,0.55);
+  transform: translateY(-3px);
+}
+.artist-card-header { padding: 0.9rem 1rem 0.6rem; }
+.artist-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.35rem; }
+.artist-card-name { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.01em; }
+.artist-card-period { font-size: 0.7rem; color: var(--text-muted); }
+.artist-card-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+.match-badge {
+  font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2px;
+  background: rgba(201,122,47,0.1); color: var(--accent); border: 1px solid rgba(201,122,47,0.28);
+  white-space: nowrap;
+}
+.artist-use-btn {
+  font-size: 0.62rem; background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border); padding: 0.2rem 0.55rem; border-radius: 2px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: var(--font);
+}
+.artist-use-btn:hover { color: var(--accent); border-color: rgba(201,122,47,0.4); background: rgba(201,122,47,0.07); transform: none; }
+.artist-wiki-btn {
+  font-size: 0.6rem; background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border); padding: 0.18rem 0.5rem; border-radius: 2px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: var(--font);
+  font-weight: 600; letter-spacing: 0.06em; text-decoration: none; display: inline-block;
+}
+.artist-wiki-btn:hover { color: #a0c4f0; border-color: rgba(160,196,240,0.5); background: rgba(160,196,240,0.06); }
+
+.artist-vallejo-btn {
+  font-size: 0.62rem; background: transparent; color: var(--accent);
+  border: 1px solid rgba(201,122,47,0.35); padding: 0.2rem 0.55rem; border-radius: 2px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: var(--font);
+  font-weight: 600; letter-spacing: 0.04em;
+}
+.artist-vallejo-btn:hover { background: rgba(201,122,47,0.12); border-color: var(--accent); transform: none; }
+.artist-vallejo-btn.active { background: rgba(201,122,47,0.15); }
+
+.artist-vallejo-panel {
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.4s cubic-bezier(0.76,0,0.24,1), padding 0.3s;
+  padding: 0 0.8rem;
+}
+.artist-vallejo-panel.open {
+  max-height: 600px;
+  padding: 0.7rem 0.8rem;
+}
+.artist-vallejo-panel .vallejo-row { flex-wrap: wrap; }
+.artist-vallejo-panel .vallejo-row + .vallejo-row { margin-top: 0.4rem; }
+.artist-card-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+
+.artist-swatches { display: flex; padding: 0.6rem; gap: 0.3rem; }
+.a-sw-col { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 32px; gap: 0.15rem; }
+.a-swatch {
+  width: 100%; height: 44px; border-radius: 3px; cursor: pointer;
+  transition: transform 0.15s; border: 2px solid transparent;
+  position: relative; overflow: hidden;
+}
+.a-swatch:hover { transform: scaleY(1.1); }
+.a-swatch-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; padding: 2px;
+}
+.a-swatch:hover .a-swatch-overlay { opacity: 1; }
+.a-swatch-overlay-text { font-size: 0.52rem; color: #fff; text-align: center; font-weight: 600; line-height: 1.2; }
+.a-swatch-hex { font-size: 0.55rem; font-family: monospace; color: #606470; text-align: center; }
+.a-swatch-name { font-size: 0.52rem; color: #606470; text-align: center; line-height: 1.2; }
+.a-swatch-pct { font-size: 0.6rem; color: var(--accent); font-weight: 600; text-align: center; }
+.a-swatch-role {
+  font-size: 0.5rem; color: #606470; text-align: center;
+  background: var(--surface2); border-radius: 2px; padding: 0 3px; line-height: 1.5;
+}
+.a-swatch-role.is-primary { color: var(--accent); }
+
+/* ─── PCT BAR ─── */
+.pct-bar {
+  display: flex; height: 8px; margin: 0 0.7rem 0.7rem; border-radius: 2px; overflow: hidden; cursor: pointer; gap: 1px;
+}
+.pct-seg { height: 100%; transition: flex 0.4s ease; border-radius: 1px; }
+.pct-seg.primary-seg { box-shadow: 0 0 0 2px white; }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+/* ═══════════════════════════════════════════
+   SECTION 3 — CUSTOM PALETTE
+═══════════════════════════════════════════ */
+.custom-palette-area {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1.2rem; margin-bottom: 0.8rem; min-height: 90px;
+}
+.custom-empty {
+  color: var(--text-muted); font-size: 0.8rem; text-align: center;
+  padding: 1.5rem; border: 1px dashed var(--border); border-radius: 3px; line-height: 1.7;
+}
+.custom-empty strong { color: var(--accent); }
+.custom-swatches { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.cp-sw-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.cp-swatch {
+  width: 56px; height: 56px; border-radius: 4px; cursor: pointer;
+  border: 2px solid transparent; transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+}
+.cp-swatch:hover { transform: translateY(-2px); }
+.cp-swatch.selected { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); }
+.cp-hex { font-size: 0.58rem; font-family: monospace; color: var(--text-muted); }
+.cp-name { font-size: 0.54rem; color: #606470; text-align: center; max-width: 56px; }
+.cp-remove {
+  position: absolute; top: -5px; right: -5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #181a1d; color: #5a5d62; font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid var(--border);
+  opacity: 0; transition: opacity 0.15s;
+}
+.cp-sw-wrap:hover .cp-remove { opacity: 1; }
+
+.custom-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+.btn-secondary {
+  background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.78rem;
+  font-family: var(--font); cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { color: var(--text); border-color: #3a3d42; transform: none; }
+.btn-mix {
+  background: transparent; color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.78rem;
+  font-family: var(--font); cursor: pointer; transition: all 0.15s;
+}
+.btn-mix:hover:not(:disabled) { background: rgba(201,122,47,0.12); transform: none; }
+.btn-mix:disabled { opacity: 0.35; cursor: default; }
+.custom-hint { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; font-style: italic; }
+
+/* ═══════════════════════════════════════════
+   SECTION 4 — IMAGE PALETTE
+═══════════════════════════════════════════ */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: 4px;
+  padding: 2.5rem 2rem; text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s; margin-bottom: 1.2rem;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--accent); background: rgba(201,122,47,0.04);
+}
+.upload-icon { font-size: 2.2rem; margin-bottom: 0.6rem; opacity: 0.35; }
+.upload-text { font-size: 0.88rem; color: var(--text-muted); }
+.upload-sub { font-size: 0.72rem; color: #606470; margin-top: 0.3rem; }
+
+.extract-result { display: none; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+.extract-thumb-wrap {
+  border-radius: 4px; overflow: hidden; border: 1px solid var(--border);
+  width: 180px; flex-shrink: 0;
+}
+.extract-thumb-wrap img { width: 100%; display: block; object-fit: cover; }
+.extract-img-info { font-size: 0.7rem; color: #606470; margin-top: 0.4rem; }
+.extract-controls { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+.extract-count-label { font-size: 0.72rem; color: var(--text-muted); }
+.extract-processing { display: none; font-size: 0.8rem; color: var(--text-muted); padding: 0.8rem 0; letter-spacing: 0.08em; }
+.extract-related-title { font-size: 0.65rem; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; margin: 1rem 0 0.7rem; }
+
+/* ═══════════════════════════════════════════
+   WHEEL ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes wheelIn {
+  from { opacity: 0; transform: rotate(-15deg) scale(0.88); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes segPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes ringFlash {
+  0%   { opacity: 0.85; stroke-width: 6; }
+  100% { opacity: 0; stroke-width: 1; }
+}
+#wheelSvg.wheel-enter { animation: wheelIn 0.55s cubic-bezier(0.76,0,0.24,1) both; }
+#wheelSvg path.seg-hover { transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease; }
+#wheelSvg path.seg-pulse { animation: segPulse 0.4s ease both; }
+
+/* ═══════════════════════════════════════════
+   SWATCH EDITOR (Section 4 floating panel)
+═══════════════════════════════════════════ */
+#swatchEditor {
+  position: fixed; inset: 0; z-index: 8000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+#swatchEditor.open { opacity: 1; pointer-events: all; }
+.swatch-editor-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1.4rem;
+  display: flex; flex-direction: column; gap: 1rem;
+  transform: scale(0.88); transition: transform 0.3s cubic-bezier(0.76,0,0.24,1);
+  min-width: 320px;
+}
+#swatchEditor.open .swatch-editor-panel { transform: scale(1); }
+.swatch-editor-title {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--accent);
+}
+.swatch-editor-preview {
+  width: 100%; height: 48px; border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: background-color 0.3s ease;
+}
+@keyframes swatchFlash {
+  0%   { filter: brightness(2); }
+  100% { filter: brightness(1); }
+}
+.swatch-editor-preview.flash { animation: swatchFlash 0.4s ease both; }
+.swatch-editor-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+.swatch-editor-mini-wheel {
+  display: flex; justify-content: center;
+}
+#miniWheelSvg { display: block; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+.copied-toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 0.5rem 1.2rem; border-radius: 2px; font-size: 0.78rem;
+  font-family: var(--font); letter-spacing: 0.06em;
+  pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 999;
+}
+.copied-toast.show { opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   VALLEJO PANEL
+═══════════════════════════════════════════ */
+.vallejo-panel {
+  margin-top: 1.5rem; margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid rgba(201,122,47,0.22);
+  border-radius: 4px;
+  overflow: hidden;
+  animation: swatchIn 0.45s var(--ease) both;
+}
+/* Paint brand tabs inside recommendation panels */
+.paint-brand-tabs { display: flex; gap: 2px; }
+.paint-brand-tab {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.18rem 0.5rem; border-radius: 2px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  font-family: var(--font); transition: all 0.15s;
+}
+.paint-brand-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.15); transform: none; }
+.paint-brand-tab.active { background: rgba(201,122,47,0.12); color: var(--accent); border-color: rgba(201,122,47,0.35); }
+
+/* Artist vallejo panel internal header */
+.artist-vallejo-header { padding: 0.45rem 0 0.4rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+
+.vallejo-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.vallejo-panel-header:hover { background: var(--surface2); }
+.vallejo-panel-title {
+  font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent);
+}
+.vallejo-panel-toggle {
+  font-size: 0.6rem; color: var(--text-muted);
+  transition: transform 0.3s var(--ease);
+}
+.vallejo-panel.collapsed .vallejo-panel-toggle { transform: rotate(180deg); }
+.vallejo-panel-body {
+  padding: 0.8rem 1rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+  max-height: 600px;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease), padding 0.3s;
+}
+.vallejo-panel.collapsed .vallejo-panel-body {
+  max-height: 0; padding-top: 0; padding-bottom: 0;
+}
+.vallejo-row {
+  display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+}
+.vallejo-src {
+  width: 32px; height: 32px; border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+}
+.vallejo-arrow {
+  color: var(--text-muted); font-size: 0.75rem; flex-shrink: 0;
+}
+.vallejo-matches { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.vallejo-match {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0.3rem 0.5rem;
+  transition: border-color 0.15s;
+}
+.vallejo-match:hover { border-color: rgba(201,122,47,0.35); }
+.vallejo-match-swatch {
+  width: 20px; height: 20px; border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+}
+.vallejo-match-info { display: flex; flex-direction: column; gap: 0.05rem; }
+.vallejo-match-code {
+  font-size: 0.58rem; color: var(--accent);
+  font-weight: 700; letter-spacing: 0.04em;
+}
+.vallejo-match-name {
+  font-size: 0.62rem; color: var(--text); line-height: 1.2;
+}
+.vallejo-match-pct {
+  font-size: 0.54rem; color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   PAGE LOADER
+═══════════════════════════════════════════ */
+#pageLoader {
+  position: fixed;
+  inset: 0;
+  background: #08090b;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#loaderWheel {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  flex-shrink: 0;
+}
+#loaderSvg {
+  width: 260px;
+  height: 260px;
+  animation: loaderRotate 8s linear infinite;
+}
+@keyframes loaderRotate {
+  to { transform: rotate(360deg); }
+}
+#loaderCenterDot {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: loaderDotPulse 1.2s ease-in-out infinite;
+}
+@keyframes loaderDotPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%       { transform: translate(-50%, -50%) scale(1.4); }
+}
+.loader-seg {
+  opacity: 0;
+  animation: loaderSegIn 0.3s ease forwards;
+}
+@keyframes loaderSegIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#loaderName {
+  margin-top: 2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  animation: loaderFadeUp 0.5s ease 1s forwards;
+}
+#loaderTagline {
+  margin-top: 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  opacity: 0;
+  animation: loaderFadeUp 0.5s ease 1.2s forwards;
+}
+@keyframes loaderFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#loaderPercent {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.15);
+}
+@media (max-width: 600px) {
+  #loaderWheel { width: 180px; height: 180px; }
+  #loaderSvg   { width: 180px; height: 180px; }
+}
+
+/* ═══════════════════════════════════════════
+   MUNSELL CONTROLS
+═══════════════════════════════════════════ */
+#munsellControls {
+  margin-top: 0.8rem;
+  padding: 1rem 1.2rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: none;
+}
+.munsell-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+.munsell-slider-group > label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+.munsell-slider-group > label > span {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 0.35rem;
+}
+.munsell-slider-group input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.munsell-notation {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+.munsell-group-label {
+  width: 100%;
+  grid-column: 1/-1;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.7rem 0 0.25rem 0;
+  border-top: 1px solid var(--border);
+  margin-top: 0.2rem;
+  flex-basis: 100%;
+}
+.munsell-group-label.first {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+#munsellHuePage {
+  margin-top: 1rem;
+  display: none;
+}
+.munsell-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.9rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+.munsell-page-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.munsell-page-title span { color: var(--accent); }
+.munsell-page-toggle {
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 0.75rem; padding: 0; line-height: 1;
+}
+#munsellPageBody {
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+#munsellPageBody.collapsed { display: none; }
+.munsell-page-grid {
+  display: grid;
+  grid-template-columns: 26px repeat(7, 28px);
+  gap: 2px;
+  align-items: center;
+}
+.munsell-grid-hdr {
+  font-size: 0.52rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.munsell-grid-vlbl {
+  font-size: 0.52rem;
+  color: var(--text-muted);
+  text-align: right;
+  padding-right: 3px;
+  font-weight: 600;
+}
+.munsell-chip {
+  width: 28px; height: 28px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.1s, border-color 0.1s;
+}
+.munsell-chip:hover {
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.4);
+  position: relative; z-index: 2;
+}
+.munsell-chip.oog {
+  background: repeating-linear-gradient(
+    -45deg, #1a1c1f, #1a1c1f 3px, #252729 3px, #252729 6px
+  ) !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.45;
+}
+@media (max-width: 600px) {
+  .munsell-sliders { grid-template-columns: 1fr; }
+  .munsell-page-grid { grid-template-columns: 22px repeat(7, 24px); }
+  .munsell-chip { width: 24px; height: 24px; }
+}
+
+/* ═══════════════════════════════════════════
+   EMOTIONAL COLOR BADGES
+═══════════════════════════════════════════ */
+.swatch-emotion {
+  font-size: 0.6rem; color: #878c97; text-align: center;
+  max-width: 72px; line-height: 1.3;
+  opacity: 0; transition: opacity 0.2s;
+}
+.swatch-wrap:hover .swatch-emotion { opacity: 1; }
+
+.cp-emotion {
+  font-size: 0.58rem; color: #878c97; text-align: center;
+  max-width: 56px; line-height: 1.2;
+  opacity: 0; transition: opacity 0.2s;
+}
+.cp-sw-wrap:hover .cp-emotion { opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  nav.site-nav { padding: 1.2rem 1.5rem; }
+  nav.site-nav.scrolled { padding: 0.8rem 1.5rem; }
+  .nav-links { gap: 1rem; }
+  .hero { padding: 0 1.5rem; }
+  main { padding: 1.5rem; }
+  .section-wrap { padding: 3rem 0 1.5rem; }
+}
+
+/* ═══════════════════════════════════════════
+   APRENDE BUTTON
+═══════════════════════════════════════════ */
+#aprendeBtn {
+  position: fixed;
+  bottom: 1.4rem;
+  right: 1.8rem;
+  z-index: 601;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid rgba(201,122,47,0.4);
+  border-radius: 3px;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+#aprendeBtn:hover {
+  background: rgba(201,122,47,0.12);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+#aprendeBtn .aprende-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+/* push up when palette strip is visible */
+#paletteStrip.visible ~ #aprendeBtn,
+body.strip-visible #aprendeBtn {
+  bottom: 4.2rem;
+}
+@media (max-width: 600px) {
+  #aprendeBtn {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.62rem;
+  }
+  body.strip-visible #aprendeBtn { bottom: 3.8rem; }
+}
+
+/* ═══════════════════════════════════════════
+   TWO-COLUMN LAYOUT — SECTION 1
+═══════════════════════════════════════════ */
+.sec1-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  align-items: flex-start;
+}
+.sec1-left { display: flex; flex-direction: column; gap: 1rem; }
+.sec1-right { position: sticky; top: 100px; }
+@media (max-width: 900px) {
+  .sec1-layout { grid-template-columns: 1fr; }
+  .sec1-right { position: static; }
+}
+
+/* ═══════════════════════════════════════════
+   SYSTEM PILL BUTTONS
+═══════════════════════════════════════════ */
+.sys-pill {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.28rem 0.7rem; border-radius: 2px;
+  background: var(--surface2); color: #878c97; border: 1px solid var(--border);
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.sys-pill:hover { color: var(--text); border-color: rgba(255,255,255,0.15); transform: none; }
+.sys-pill.active { background: rgba(201,122,47,0.12); color: var(--accent); border-color: rgba(201,122,47,0.4); }
+
+/* ═══════════════════════════════════════════
+   HARMONY LABEL
+═══════════════════════════════════════════ */
+#harmonyLabel {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.8rem;
+  border-left: 3px solid var(--accent); padding-left: 0.7rem;
+}
+
+/* ═══════════════════════════════════════════
+   PALETTE STRIP (floating bottom bar)
+═══════════════════════════════════════════ */
+#paletteStrip {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 600;
+  background: rgba(16,18,20,0.97);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #222528;
+  padding: 0.6rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s cubic-bezier(0.76,0,0.24,1);
+  transform: translateY(100%);
+}
+#paletteStrip.visible { transform: translateY(0); }
+#stripLabel {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #878c97; white-space: nowrap;
+}
+#stripSwatches { display: flex; gap: 0.3rem; flex-wrap: nowrap; overflow-x: auto; flex: 1; }
+.strip-sw {
+  width: 24px; height: 24px; border-radius: 3px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.15s;
+}
+.strip-sw:hover { transform: scaleY(1.2); }
+#stripGoBtn {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+  background: transparent; color: #c97a2f; border: 1px solid rgba(201,122,47,0.4);
+  padding: 0.25rem 0.7rem; border-radius: 2px; cursor: pointer; white-space: nowrap;
+  font-family: var(--font);
+}
+#stripGoBtn:hover { background: rgba(201,122,47,0.1); transform: none; }
+
+/* ═══════════════════════════════════════════
+   ACTIVE NAV TAB
+═══════════════════════════════════════════ */
+.nav-links a.active { color: var(--white); }
+.nav-links a.active::after { transform: scaleX(1); transform-origin: left; }
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — 600px breakpoint
+═══════════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* ── Nav: stack logo + horizontal scrollable pill bar ── */
+  nav.site-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.9rem 1.2rem 0;
+    gap: 0.6rem;
+  }
+  nav.site-nav.scrolled {
+    padding: 0.7rem 1.2rem 0;
+  }
+  .nav-links {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.7rem;
+    gap: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    white-space: nowrap;
+    padding: 0.35rem 0.9rem;
+    border-bottom: 2px solid transparent;
+    font-size: 0.66rem;
+  }
+  .nav-links a.active {
+    border-bottom-color: var(--accent);
+    color: var(--white);
+  }
+  .nav-links a::after { display: none; }
+
+  /* ── Hero: compact ── */
+  .hero { min-height: 40vh; padding: 0 1.2rem; padding-top: 100px; }
+  .hero-bg-text { font-size: 22vw; }
+  .hero-title { font-size: clamp(2.4rem, 12vw, 4rem); }
+  .hero-desc { font-size: 0.78rem; }
+  .hero-scroll { display: none; }
+  .hero-nav-pills { display: none; }
+
+  /* ── Main: top padding cleared (nav is fixed) ── */
+  main { padding: 1rem; padding-top: 0; }
+
+  /* ── Section wrap: trim overflow ── */
+  .section-wrap { padding: 2.5rem 0 1rem; overflow: hidden; }
+  .section-bg-num { font-size: 20vw; left: -0.5rem; }
+
+  /* ── Controls bar: full-width stacked ── */
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+  .bcp-wrap { min-width: unset; width: 100%; }
+  #systemPills { max-width: 100% !important; }
+  .bcp-hsv { width: 100%; }
+  .bcp-hue-track,
+  .bcp-sat-track,
+  .bcp-val-track { min-width: 0; }
+
+  /* ── Color wheel: centered and smaller ── */
+  .sec1-right { display: flex; justify-content: center; }
+  #wheelSvg { width: 220px; height: 220px; }
+  #wheelFilters { justify-content: center; }
+
+  /* ── Artists grid: single column ── */
+  .artists-grid { grid-template-columns: 1fr; }
+  .artist-card-header { padding: 0.75rem 0.8rem 0.5rem; }
+
+  /* ── Extract result: stacked ── */
+  .extract-result { flex-direction: column; }
+  .extract-thumb-wrap { width: 100%; }
+  .extract-controls { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+  /* ── Palette strip: compact ── */
+  #paletteStrip { padding: 0.5rem 1rem; gap: 0.6rem; }
+  #stripLabel { display: none; }
+
+  /* ── Custom palette actions: full-width stacked ── */
+  .custom-actions { flex-direction: column; align-items: stretch; }
+  .custom-actions button,
+  .custom-actions .btn-secondary,
+  .custom-actions .btn-mix { width: 100%; }
+  .custom-hint { margin-left: 0; text-align: center; }
+
+  /* ── Vallejo panels ── */
+  .vallejo-panel-header { flex-wrap: wrap; gap: 0.4rem; }
+  .vallejo-matches { gap: 0.35rem; }
+
+  /* ── Touch targets ── */
+  .bcp-tab { padding: 0.5rem 0.8rem; font-size: 0.68rem; }
+  .sys-pill { padding: 0.45rem 0.85rem; font-size: 0.66rem; }
+  .filter-btn { padding: 0.45rem 1rem; }
+  .wheel-filter-btn { padding: 0.4rem 0.85rem; }
+  button { min-height: 38px; }
+
+  /* ── Typography ── */
+  select { min-width: unset; width: 100%; }
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — 480px breakpoint
+═══════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* ── Swatches: slightly smaller ── */
+  .swatch { width: 56px; height: 56px; }
+  .swatches-row { gap: 0.5rem; }
+  .swatch-role { max-width: 56px; }
+
+  /* ── Swatch editor modal ── */
+  .swatch-editor-panel { min-width: unset; width: calc(100vw - 2rem); }
+  #miniWheelSvg { width: 180px; height: 180px; }
+
+  /* ── Munsell page grid: fluid columns ── */
+  .munsell-page-grid { grid-template-columns: 22px repeat(7, 1fr); }
+  .munsell-chip { width: 100%; height: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div id="pageLoader">
+  <div id="loaderWheel">
+    <svg id="loaderSvg" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="loaderCenterDot"></div>
+  </div>
+  <div id="loaderName">Paletas ·</div>
+  <div id="loaderTagline">Color. Forma. Identidad.</div>
+  <div id="loaderPercent">0%</div>
+</div>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<nav class="site-nav" id="siteNav">
+  <div class="nav-logo">Paletas ·</div>
+  <div class="nav-links">
+    <a href="#teoria" onclick="switchTab('teoria');return false;" data-tab="teoria">01 · Color</a>
+    <a href="#artistas" onclick="switchTab('artistas');return false;" data-tab="artistas">02 · Artistas</a>
+    <a href="#imagen" onclick="switchTab('imagen');return false;" data-tab="imagen">03 · Imagen</a>
+    <a href="#paleta" onclick="switchTab('paleta');return false;" data-tab="paleta">04 · Paleta</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg-text" id="heroBgText">COLOR</div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="heroEyebrow">Herramienta de color para artistas</div>
+    <h1 class="hero-title">
+      <span class="line"><span id="heroLine1" style="color:#ffffff">PALETAS</span></span>
+      <span class="line"><span id="heroLine2" class="accent">DE COLOR</span></span>
+    </h1>
+    <p class="hero-desc" id="heroDesc">
+      Generador teórico · paletas históricas · mezcla personalizada · extracción desde imagen
+    </p>
+    <div class="hero-nav-pills" id="heroNavPills">
+      <a class="hero-pill" href="#teoria" onclick="switchTab('teoria');return false;">Sistemas de color</a>
+      <a class="hero-pill" href="#artistas" onclick="switchTab('artistas');return false;">Artistas famosos</a>
+      <a class="hero-pill" href="#imagen" onclick="switchTab('imagen');return false;">Desde imagen</a>
+      <a class="hero-pill" href="#paleta" onclick="switchTab('paleta');return false;">Paleta personalizada</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+<main>
+
+  <!-- ══ TAB VIEW: TEORIA (Sección 1) ══════ -->
+  <div id="tabView-teoria" class="tab-view">
+  <div id="sec1" class="section-anchor"></div>
+  <div class="section-wrap">
+    <div class="section-bg-num">01</div>
+    <div class="section-title reveal">01 — Sistemas de Color Teóricos</div>
+
+    <div class="sec1-layout">
+      <div class="sec1-left">
+
+    <div class="controls reveal reveal-d1">
+      <div class="control-group bcp-wrap">
+        <label>Color base</label>
+        <!-- Tabs -->
+        <div class="bcp-tabs">
+          <button class="bcp-tab active" onclick="bcpSetTab('manual',this)">Manual</button>
+          <button class="bcp-tab" onclick="bcpSetTab('hex',this)">Código</button>
+          <button class="bcp-tab" onclick="bcpSetTab('vallejo',this)">Vallejo</button>
+          <button class="bcp-tab" onclick="bcpSetTab('oldholland',this)">Old Holland</button>
+        </div>
+        <!-- Hidden source of truth -->
+        <input type="color" id="baseColor" value="#c0392b" style="display:none">
+        <!-- Panel: Manual HSV -->
+        <div class="bcp-panel active" id="bcpManual">
+          <div class="bcp-hsv">
+            <!-- Tono -->
+            <div class="bcp-hsv-row">
+              <div class="bcp-hsv-label-row">
+                <span class="bcp-hsv-label">Tono</span>
+                <span class="bcp-hsv-num" id="bcpHueNum">4°</span>
+              </div>
+              <div class="bcp-hue-track">
+                <input type="range" id="bcpHue" min="0" max="359" value="4" oninput="bcpUpdateHsv(); debouncedGenerate()">
+              </div>
+            </div>
+            <!-- Saturación -->
+            <div class="bcp-hsv-row">
+              <div class="bcp-hsv-label-row">
+                <span class="bcp-hsv-label">Saturación</span>
+                <span class="bcp-hsv-num" id="bcpSatNum">79%</span>
+              </div>
+              <div class="bcp-sat-track" id="bcpSatTrack">
+                <input type="range" id="bcpSat" min="0" max="100" value="79" oninput="bcpUpdateHsv(); debouncedGenerate()">
+              </div>
+            </div>
+            <!-- Valor -->
+            <div class="bcp-hsv-row">
+              <div class="bcp-hsv-label-row">
+                <span class="bcp-hsv-label">Valor</span>
+                <span class="bcp-hsv-num" id="bcpValNum">75%</span>
+              </div>
+              <div class="bcp-val-track" id="bcpValTrack">
+                <input type="range" id="bcpVal" min="0" max="100" value="75" oninput="bcpUpdateHsv(); debouncedGenerate()">
+              </div>
+            </div>
+            <!-- Footer: sugerencias + preview -->
+            <div class="bcp-hsv-footer">
+              <button class="bcp-suggest-btn" onclick="bcpToggleSuggest()">Sugerencias</button>
+              <div class="bcp-chosen">
+                <span class="bcp-chosen-label">Color elegido</span>
+                <div class="bcp-chosen-swatch" id="bcpChosenSwatch"></div>
+                <span class="bcp-chosen-hex" id="bcpHexLabel">#c0392b</span>
+              </div>
+            </div>
+            <!-- Sugerencias Vallejo -->
+            <div class="bcp-suggest-panel" id="bcpSuggestPanel" style="display:none">
+              <div class="bcp-suggest-title">Vallejo más cercanos al color elegido</div>
+              <div class="bcp-suggest-list" id="bcpSuggestList"></div>
+            </div>
+            <!-- Glosario -->
+            <details class="bcp-glossary">
+              <summary class="bcp-glossary-summary">¿Qué es Tono, Saturación y Valor?</summary>
+              <div class="bcp-glossary-body">
+                <div class="bcp-glossary-item">
+                  <span class="bcp-gterm">Tono</span>
+                  <span class="bcp-gdesc">El color puro en el espectro visible: rojo, amarillo, verde, azul… Se mide en grados (0°–359°) recorriendo la rueda cromática. Por ejemplo, 0° es rojo, 120° es verde, 240° es azul.</span>
+                </div>
+                <div class="bcp-glossary-item">
+                  <span class="bcp-gterm">Saturación</span>
+                  <span class="bcp-gdesc">La intensidad o pureza del color. Al 100% es el tono más vivo y limpio; al 0% el color se convierte en un gris neutro, sin importar el tono.</span>
+                </div>
+                <div class="bcp-glossary-item">
+                  <span class="bcp-gterm">Valor</span>
+                  <span class="bcp-gdesc">El brillo del color. Al 100% es el color en plena luz; al 0% es negro puro, independientemente del tono o la saturación. En pintura, equivale a añadir blanco (sube el valor) o negro (lo baja).</span>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+        <!-- Panel: Hex input -->
+        <div class="bcp-panel" id="bcpHex">
+          <div class="bcp-row">
+            <label class="bcp-swatch" id="bcpSwatchHex" style="pointer-events:none"></label>
+            <input class="bcp-hex-input" id="bcpHexText" maxlength="7" value="#c0392b" placeholder="#rrggbb" oninput="bcpSyncFromHex(this.value); debouncedGenerate()">
+          </div>
+          <div id="bcpHexError" style="display:none;font-size:0.62rem;color:#e07070;margin-top:0.1rem">Formato inválido — usa #rrggbb</div>
+        </div>
+        <!-- Panel: Vallejo catalog -->
+        <div class="bcp-panel" id="bcpVallejo">
+          <input class="bcp-vallejo-search" id="bcpVallejoSearch" placeholder="Buscar nombre o código..." oninput="bcpFilterVallejo(this.value)">
+          <div class="bcp-vallejo-list" id="bcpVallejoList"></div>
+        </div>
+        <!-- Panel: Old Holland catalog -->
+        <div class="bcp-panel" id="bcpOldholland">
+          <input class="bcp-vallejo-search" id="bcpOHSearch" placeholder="Buscar nombre o código..." oninput="bcpFilterOH(this.value)">
+          <div class="bcp-vallejo-list" id="bcpOHList"></div>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Sistema</label>
+        <div id="systemPills" style="display:flex;flex-wrap:wrap;gap:0.35rem;max-width:380px">
+          <button class="sys-pill active" data-val="ryb" onclick="selectSystem(this)">RYB</button>
+          <button class="sys-pill" data-val="cmy" onclick="selectSystem(this)">CMY</button>
+          <button class="sys-pill" data-val="munsell" onclick="selectSystem(this)">Munsell</button>
+          <button class="sys-pill" data-val="ncs" onclick="selectSystem(this)">NCS</button>
+          <button class="sys-pill" data-val="ostwald" onclick="selectSystem(this)">Ostwald</button>
+          <button class="sys-pill" data-val="hsl" onclick="selectSystem(this)">HSL</button>
+          <button class="sys-pill" data-val="oklch" onclick="selectSystem(this)">LAB/OKLCH</button>
+          <button class="sys-pill" data-val="temperature" onclick="selectSystem(this)">Temperatura</button>
+        </div>
+        <input type="hidden" id="systemSelect" value="ryb">
+      </div>
+    </div>
+
+    <!-- ── Munsell 3-axis controls (solo modo Munsell) ── -->
+    <div id="munsellControls" style="display:none">
+      <div class="munsell-sliders">
+        <div class="munsell-slider-group">
+          <label>Hue <span id="mHueLabel">5R</span></label>
+          <input type="range" id="mHueSlider" min="0" max="39" value="1" step="1" oninput="mSyncSliders()">
+        </div>
+        <div class="munsell-slider-group">
+          <label>Value <span id="mValLabel">6</span></label>
+          <input type="range" id="mValSlider" min="1" max="9" value="6" step="1" oninput="mSyncSliders()">
+        </div>
+        <div class="munsell-slider-group">
+          <label>Chroma <span id="mChrLabel">8</span></label>
+          <input type="range" id="mChrSlider" min="0" max="24" value="8" step="2" oninput="mSyncSliders()">
+        </div>
+      </div>
+    </div>
+
+    <div class="system-hint" id="systemHint" style="display:none"></div>
+    <div class="system-description reveal reveal-d2" id="systemDesc"></div>
+    <div id="harmonyLabel" style="display:none"></div>
+    <div class="swatches-row" id="swatchesRow"></div>
+
+    <!-- ── Munsell Hue Page (solo modo Munsell) ── -->
+    <div id="munsellHuePage" style="display:none">
+      <div class="munsell-page-header" onclick="toggleMunsellPage()">
+        <span class="munsell-page-title">Página de tono: <span id="munsellPageHueName">5R</span></span>
+        <button class="munsell-page-toggle" tabindex="-1">▲</button>
+      </div>
+      <div id="munsellPageBody"></div>
+    </div>
+
+    <!-- Panel Pinturas Sección 1 -->
+    <div class="vallejo-panel collapsed" id="vallejoPanelSec1" style="display:none">
+      <div class="vallejo-panel-header">
+        <div class="vallejo-panel-title">Pinturas Recomendadas</div>
+        <div class="paint-brand-tabs">
+          <button class="paint-brand-tab active" onclick="switchPaintBrand('vallejoPanelSec1','vallejo',this)">Vallejo</button>
+          <button class="paint-brand-tab" onclick="switchPaintBrand('vallejoPanelSec1','oldholland',this)">Old Holland</button>
+        </div>
+        <div class="vallejo-panel-toggle" onclick="toggleVallejoPanel('vallejoPanelSec1')" style="cursor:pointer;padding:0 0.2rem">▲</div>
+      </div>
+      <div class="vallejo-panel-body" id="vallejoPanelSec1Body"></div>
+    </div>
+
+    <!-- Artistas relacionados -->
+    <div class="related-panel" id="relatedPanel">
+      <div class="related-panel-title">Artistas con paletas similares</div>
+      <div class="related-list" id="relatedList"></div>
+    </div>
+
+      </div><!-- /.sec1-left -->
+
+      <div class="sec1-right">
+        <!-- Rosa Cromática (color wheel) -->
+        <div id="wheelWrap" style="margin-bottom:1.5rem">
+          <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+            <div>
+              <svg id="wheelSvg" width="280" height="280" viewBox="0 0 280 280" style="display:block"></svg>
+              <div id="wheelFilters" style="display:flex;gap:0.4rem;margin-top:0.6rem;flex-wrap:wrap"></div>
+            </div>
+            <div id="wheelLegend" style="font-size:0.72rem;color:#5a5d62;padding-top:0.5rem;line-height:2"></div>
+          </div>
+        </div>
+      </div><!-- /.sec1-right -->
+
+    </div><!-- /.sec1-layout -->
+
+  </div>
+  <hr class="divider">
+  </div><!-- /#tabView-teoria -->
+
+  <!-- ══ TAB VIEW: ARTISTAS (Sección 2) ════ -->
+  <div id="tabView-artistas" class="tab-view" style="display:none">
+  <div id="sec2" class="section-anchor"></div>
+  <div class="section-wrap">
+    <div class="section-bg-num">02</div>
+    <div class="section-title reveal">02 — Paletas de Artistas Famosos</div>
+
+    <div class="sort-bar reveal reveal-d1" id="filterBar">
+      <span class="sort-label" id="sortLabel"></span>
+    </div>
+    <div class="artists-grid" id="artistsGrid"></div>
+  </div>
+  <hr class="divider">
+  </div><!-- /#tabView-artistas -->
+
+  <!-- ══ TAB VIEW: IMAGEN (Sección 3) ════ -->
+  <div id="tabView-imagen" class="tab-view" style="display:none">
+  <div id="sec3" class="section-anchor"></div>
+  <div class="section-wrap">
+    <div class="section-bg-num">03</div>
+    <div class="section-title reveal">03 — Paleta desde Imagen</div>
+
+    <input type="file" id="imgInput" accept="image/*" style="display:none">
+    <canvas id="imgCanvas" style="display:none"></canvas>
+
+    <div class="upload-zone reveal reveal-d1" id="uploadZone" onclick="document.getElementById('imgInput').click()">
+      <div class="upload-icon">🖼</div>
+      <div class="upload-text">Arrastra una imagen aquí o haz clic para seleccionar</div>
+      <div class="upload-sub">JPG, PNG, WebP — procesado localmente en tu navegador, sin subir datos</div>
+    </div>
+
+    <div id="extractProcessing" class="extract-processing">Analizando colores…</div>
+
+    <div id="extractResult" class="extract-result">
+      <div>
+        <div class="extract-thumb-wrap">
+          <img id="extractThumb" src="" alt="imagen subida">
+        </div>
+        <div class="extract-img-info" id="extractInfo"></div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div class="extract-controls">
+          <span class="extract-count-label">Colores:</span>
+          <select id="colorCount" onchange="reExtract()">
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8" selected>8</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+          </select>
+          <button class="btn-secondary" onclick="addAllExtractedToCustom()">＋ añadir todo a paleta</button>
+          <button class="btn-secondary" onclick="resetUpload()">✕ nueva imagen</button>
+        </div>
+        <div class="swatches-row" id="extractSwatches"></div>
+
+        <!-- Panel Pinturas Sección 3 -->
+        <div class="vallejo-panel collapsed" id="vallejoPanelSec3" style="display:none">
+          <div class="vallejo-panel-header">
+            <div class="vallejo-panel-title">Pinturas Recomendadas</div>
+            <div class="paint-brand-tabs">
+              <button class="paint-brand-tab active" onclick="switchPaintBrand('vallejoPanelSec3','vallejo',this)">Vallejo</button>
+              <button class="paint-brand-tab" onclick="switchPaintBrand('vallejoPanelSec3','oldholland',this)">Old Holland</button>
+            </div>
+            <div class="vallejo-panel-toggle" onclick="toggleVallejoPanel('vallejoPanelSec3')" style="cursor:pointer;padding:0 0.2rem">▲</div>
+          </div>
+          <div class="vallejo-panel-body" id="vallejoPanelSec3Body"></div>
+        </div>
+
+        <div id="extractRelated"></div>
+      </div>
+    </div>
+  </div>
+  <hr class="divider">
+  </div><!-- /#tabView-imagen -->
+
+  <div id="tabView-paleta" class="tab-view" style="display:none">
+  <div id="sec4" class="section-anchor"></div>
+  <div class="section-wrap">
+    <div class="section-bg-num">04</div>
+    <div class="section-title reveal">04 — Paleta Personalizada</div>
+
+    <div class="custom-palette-area reveal reveal-d1" id="customArea">
+      <div class="custom-empty">
+        Haz clic en <strong>＋ añadir</strong> bajo cualquier swatch (secciones 1 y 3)<br>
+        o en <strong>＋ usar paleta</strong> en la tarjeta de un artista
+      </div>
+    </div>
+
+    <div id="emotionPanel" style="display:none; margin-bottom:1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1rem 1.2rem;">
+      <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;border-left:3px solid var(--accent);padding-left:0.7rem">Análisis Emocional de tu Paleta</div>
+      <div id="emotionColors" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem"></div>
+      <div id="emotionSummary" style="font-size:0.78rem;color:#dddcda;line-height:1.7;border-top:1px solid var(--border);padding-top:0.8rem"></div>
+    </div>
+
+    <div class="custom-actions reveal reveal-d2">
+      <button class="btn-mix" id="mixBtn" onclick="mixSelected()" disabled>Mezclar 2 seleccionados</button>
+      <button class="btn-secondary" onclick="exportCustom()">Exportar HEX</button>
+      <button class="btn-secondary" onclick="clearCustomPalette()">Limpiar todo</button>
+      <span class="custom-hint" id="selHint"></span>
+    </div>
+  </div>
+  </div><!-- /#tabView-paleta -->
+
+</main>
+
+<div id="paletteStrip">
+  <span id="stripLabel">Mi paleta</span>
+  <div id="stripSwatches"></div>
+  <button id="stripGoBtn" onclick="switchTab('paleta')">Ver paleta →</button>
+</div>
+
+<a id="aprendeBtn" href="aprende.html">
+  <span class="aprende-icon">🎨</span>
+  Aprende Color
+</a>
+
+<div class="wheel-tooltip" id="wheelTooltip">
+  <div class="wheel-tooltip-title" id="ttTitle"></div>
+  <div class="wheel-tooltip-desc" id="ttDesc"></div>
+  <div class="wheel-tooltip-use" id="ttUse"></div>
+</div>
+
+<div class="copied-toast" id="toast"></div>
+
+<!-- Swatch Editor Panel (Section 4) -->
+<div id="swatchEditor">
+  <div class="swatch-editor-panel">
+    <div class="swatch-editor-title">Editar color</div>
+    <div class="swatch-editor-preview" id="sePreview"></div>
+    <div class="swatch-editor-mini-wheel">
+      <svg id="miniWheelSvg" width="220" height="220" viewBox="0 0 220 220"></svg>
+    </div>
+    <div class="swatch-editor-actions">
+      <button class="btn-secondary" onclick="closeSwatchEditor(false)">Cancelar</button>
+      <button onclick="closeSwatchEditor(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DEBOUNCE UTILITY
+// ══════════════════════════════════════════════
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+const debouncedGenerate = debounce(() => generate(), 200);
+
+// ══════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════
+const TAB_MAP = {
+  teoria:   'tabView-teoria',
+  artistas: 'tabView-artistas',
+  imagen:   'tabView-imagen',
+  paleta:   'tabView-paleta',
+};
+let _tabGenerated = false;
+
+function switchTab(tabName) {
+  // Hide all tab views
+  Object.values(TAB_MAP).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Show hero only on teoria tab
+  const hero = document.getElementById('hero');
+  if (hero) hero.style.display = tabName === 'teoria' ? '' : 'none';
+  // Show requested tab
+  const target = document.getElementById(TAB_MAP[tabName]);
+  if (target) target.style.display = 'block';
+  // Update URL hash
+  location.hash = tabName;
+  // Update active nav link
+  document.querySelectorAll('.nav-links a[data-tab]').forEach(a => {
+    a.classList.toggle('active', a.dataset.tab === tabName);
+  });
+  // Generate on first visit to teoria tab
+  if (tabName === 'teoria' && !_tabGenerated) {
+    _tabGenerated = true;
+    generate();
+  }
+}
+
+// ══════════════════════════════════════════════
+// PAGE LOADER
+// ══════════════════════════════════════════════
+
+// Hero entrance — called by loader on exit
+function triggerHeroEntrance() {
+  document.getElementById('heroEyebrow').classList.add('in');
+  document.getElementById('heroLine1').style.transform = 'none';
+  document.getElementById('heroLine2').style.transform = 'none';
+  setTimeout(() => {
+    document.getElementById('heroDesc').classList.add('in');
+    document.getElementById('heroNavPills').classList.add('in');
+  }, 400);
+}
+
+// Loader IIFE — runs immediately on parse
+(function() {
+  const SEGS = [
+    {h:0,   s:'88%', l:'58%'},
+    {h:30,  s:'90%', l:'58%'},
+    {h:60,  s:'82%', l:'52%'},
+    {h:90,  s:'70%', l:'42%'},
+    {h:120, s:'65%', l:'38%'},
+    {h:150, s:'65%', l:'40%'},
+    {h:180, s:'75%', l:'44%'},
+    {h:210, s:'78%', l:'54%'},
+    {h:240, s:'76%', l:'56%'},
+    {h:270, s:'72%', l:'55%'},
+    {h:300, s:'68%', l:'50%'},
+    {h:330, s:'78%', l:'55%'}
+  ];
+  const cx = 130, cy = 130, OR = 118, IR = 58, R = Math.PI / 180;
+
+  function arcPath(i) {
+    const a0 = (i * 30 - 90) * R;
+    const a1 = (i * 30 - 90 + 29.4) * R;
+    const x0o = +(cx + OR*Math.cos(a0)).toFixed(2), y0o = +(cy + OR*Math.sin(a0)).toFixed(2);
+    const x1o = +(cx + OR*Math.cos(a1)).toFixed(2), y1o = +(cy + OR*Math.sin(a1)).toFixed(2);
+    const x0i = +(cx + IR*Math.cos(a0)).toFixed(2), y0i = +(cy + IR*Math.sin(a0)).toFixed(2);
+    const x1i = +(cx + IR*Math.cos(a1)).toFixed(2), y1i = +(cy + IR*Math.sin(a1)).toFixed(2);
+    return `M${x0i},${y0i}L${x0o},${y0o}A${OR},${OR},0,0,1,${x1o},${y1o}L${x1i},${y1i}A${IR},${IR},0,0,0,${x0i},${y0i}Z`;
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('loaderSvg');
+
+  // Radial glow gradient
+  const defs = document.createElementNS(NS, 'defs');
+  const rg = document.createElementNS(NS, 'radialGradient');
+  rg.setAttribute('id', 'lglow');
+  rg.setAttribute('cx', '50%'); rg.setAttribute('cy', '50%'); rg.setAttribute('r', '50%');
+  const st0 = document.createElementNS(NS, 'stop');
+  st0.setAttribute('offset', '0%'); st0.setAttribute('stop-color', '#fff'); st0.setAttribute('stop-opacity', '0.3');
+  const st1 = document.createElementNS(NS, 'stop');
+  st1.setAttribute('offset', '58%'); st1.setAttribute('stop-color', '#fff'); st1.setAttribute('stop-opacity', '0');
+  rg.appendChild(st0); rg.appendChild(st1); defs.appendChild(rg); svg.appendChild(defs);
+
+  // Segments with stagger
+  SEGS.forEach((c, i) => {
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', arcPath(i));
+    path.setAttribute('fill', `hsl(${c.h},${c.s},${c.l})`);
+    path.classList.add('loader-seg');
+    path.style.animationDelay = (i * 0.08) + 's';
+    svg.appendChild(path);
+  });
+
+  // Center glow overlay circle
+  const glowC = document.createElementNS(NS, 'circle');
+  glowC.setAttribute('cx', cx); glowC.setAttribute('cy', cy); glowC.setAttribute('r', OR);
+  glowC.setAttribute('fill', 'url(#lglow)'); glowC.setAttribute('pointer-events', 'none');
+  svg.appendChild(glowC);
+
+  // Percentage counter — cubic ease-out (fast start, slow near 100%)
+  const pctEl = document.getElementById('loaderPercent');
+  const t0 = performance.now();
+  const DUR = 2000;
+  function tick(now) {
+    const t = Math.min((now - t0) / DUR, 1);
+    const eased = 1 - Math.pow(1 - t, 2.8);
+    pctEl.textContent = Math.floor(eased * 100) + '%';
+    if (t < 1) requestAnimationFrame(tick);
+    else exitLoader();
+  }
+  requestAnimationFrame(tick);
+
+  function exitLoader() {
+    const loader = document.getElementById('pageLoader');
+    const svgEl  = document.getElementById('loaderSvg');
+    const wheel  = document.getElementById('loaderWheel');
+
+    // Accelerate spin
+    svgEl.style.transition = 'animation-duration 0.4s';
+    svgEl.style.animationDuration = '0.8s';
+
+    // Flash all segments bright
+    document.querySelectorAll('.loader-seg').forEach(seg => {
+      seg.style.transition = 'filter 0.15s';
+      seg.style.filter = 'brightness(2.4)';
+    });
+
+    // Contract wheel + fade overlay
+    setTimeout(() => {
+      wheel.style.transition = 'transform 0.5s cubic-bezier(0.76,0,0.24,1)';
+      wheel.style.transformOrigin = 'center';
+      wheel.style.transform = 'scale(0)';
+      loader.style.transition = 'opacity 0.4s ease 0.18s';
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        loader.remove();
+        triggerHeroEntrance();
+      }, 750);
+    }, 280);
+  }
+})();
+
+// ══════════════════════════════════════════════
+// ANIMATION & UI SYSTEM
+// ══════════════════════════════════════════════
+
+// ── CUSTOM CURSOR ──
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = -100, my = -100, rx = -100, ry = -100;
+
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function animateCursor() {
+    dot.style.left = mx + 'px';
+    dot.style.top  = my + 'px';
+    rx += (mx - rx) * 0.14;
+    ry += (my - ry) * 0.14;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+
+  document.querySelectorAll('a, button, input, select, .swatch, .a-swatch, .cp-swatch, .pct-bar, .upload-zone').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+} else {
+  dot.style.display = 'none';
+  ring.style.display = 'none';
+}
+
+// ── NAV SCROLL ──
+const nav = document.getElementById('siteNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── HERO ENTRANCE — triggered by loader exit (see triggerHeroEntrance above) ──
+
+// ── PARALLAX ON HERO BG TEXT ──
+window.addEventListener('scroll', () => {
+  const bg = document.getElementById('heroBgText');
+  if (bg) bg.style.transform = `translateY(${window.scrollY * 0.18}px)`;
+}, { passive: true });
+
+// ── SCROLL REVEAL (IntersectionObserver) ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .section-title').forEach(el => revealObserver.observe(el));
+
+// Smooth transitions for hero title lines
+document.getElementById('heroLine1').style.transition = 'transform 1s cubic-bezier(0.76,0,0.24,1)';
+document.getElementById('heroLine2').style.transition = 'transform 1s cubic-bezier(0.76,0,0.24,1) 0.14s';
+
+// ══════════════════════════════════════════════
+// COLOR UTILITIES
+// ══════════════════════════════════════════════
+function hexToHsl(hex) {
+  let r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
+  let max=Math.max(r,g,b), min=Math.min(r,g,b), h, s, l=(max+min)/2;
+  if(max===min){ h=s=0; } else {
+    let d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){
+      case r: h=((g-b)/d+(g<b?6:0))/6; break;
+      case g: h=((b-r)/d+2)/6; break;
+      case b: h=((r-g)/d+4)/6; break;
+    }
+  }
+  return [h*360, s*100, l*100];
+}
+
+// ── EMOTIONAL COLOR ANALYSIS ──────────────────
+function getColorEmotion(hex) {
+  const [h, s, l] = hexToHsl(hex);
+
+  // Neutral/achromatic check
+  if (s < 12) {
+    if (l < 20) return { label: 'Poder', desc: 'Misterio, elegancia, formalidad', emoji: '⬛', mood: 'neutral' };
+    if (l > 80) return { label: 'Pureza', desc: 'Ligereza, inocencia, espacio', emoji: '⬜', mood: 'neutral' };
+    return { label: 'Equilibrio', desc: 'Neutralidad, sofisticación, calma', emoji: '▪️', mood: 'neutral' };
+  }
+
+  // Hue-based emotions
+  let base;
+  if (h < 15 || h >= 345)  base = { label: 'Pasión',       desc: 'Energía, amor, urgencia, peligro',           emoji: '🔴', mood: 'warm' };
+  else if (h < 40)          base = { label: 'Entusiasmo',   desc: 'Creatividad, calidez, vitalidad, optimismo', emoji: '🟠', mood: 'warm' };
+  else if (h < 70)          base = { label: 'Alegría',      desc: 'Optimismo, atención, inteligencia, luz',     emoji: '🟡', mood: 'warm' };
+  else if (h < 100)         base = { label: 'Frescura',     desc: 'Naturaleza, esperanza, crecimiento, salud',  emoji: '🟢', mood: 'cool' };
+  else if (h < 150)         base = { label: 'Equilibrio',   desc: 'Naturaleza, calma, renovación, armonía',     emoji: '🌿', mood: 'cool' };
+  else if (h < 190)         base = { label: 'Serenidad',    desc: 'Claridad, frescura, renovación, paz',        emoji: '🩵', mood: 'cool' };
+  else if (h < 250)         base = { label: 'Confianza',    desc: 'Calma, profundidad, lealtad, melancolía',    emoji: '🔵', mood: 'cool' };
+  else if (h < 290)         base = { label: 'Sabiduría',    desc: 'Espiritualidad, intuición, imaginación',     emoji: '🟣', mood: 'cool' };
+  else if (h < 320)         base = { label: 'Misterio',     desc: 'Lujo, magia, creatividad, originalidad',     emoji: '💜', mood: 'neutral' };
+  else                       base = { label: 'Ternura',      desc: 'Romance, suavidad, feminidad, delicadeza',   emoji: '🩷', mood: 'warm' };
+
+  // Modify description based on saturation and lightness
+  let modifier = '';
+  if (s < 30) modifier = ' · tono suave y sofisticado';
+  else if (s > 75) modifier = ' · muy intenso y llamativo';
+  if (l < 25) modifier += ' · oscuro, poderoso';
+  else if (l > 75) modifier += ' · claro, delicado';
+
+  return { ...base, desc: base.desc + modifier };
+}
+
+function hslToHex(h,s,l){
+  h=((h%360)+360)%360; s=Math.max(0,Math.min(100,s))/100; l=Math.max(0,Math.min(100,l))/100;
+  let c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}
+  else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
+  return '#'+[r,g,b].map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('');
+}
+function hslToRyb(h){
+  const m=[[0,0],[15,8],[30,17],[60,26],[120,60],[180,120],[240,180],[300,240],[330,300],[360,360]];
+  for(let i=0;i<m.length-1;i++){let[h0,r0]=m[i],[h1,r1]=m[i+1];if(h>=h0&&h<=h1)return r0+(h-h0)/(h1-h0)*(r1-r0);}
+  return h;
+}
+function rybToHsl(r){
+  const m=[[0,0],[8,15],[17,30],[26,60],[60,120],[120,180],[180,240],[240,300],[300,330],[360,360]];
+  for(let i=0;i<m.length-1;i++){let[r0,h0]=m[i],[r1,h1]=m[i+1];if(r>=r0&&r<=r1)return h0+(r-r0)/(r1-r0)*(h1-h0);}
+  return r;
+}
+function hexToRgb(hex){return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');}
+function mix(c1,c2,t){let[r1,g1,b1]=hexToRgb(c1),[r2,g2,b2]=hexToRgb(c2);return rgbToHex(r1+(r2-r1)*t,g1+(g2-g1)*t,b1+(b2-b1)*t);}
+
+// ── PAINT COLOR DATABASE ──────────────────────
+const PAINT_DB=[
+  ['Rojo cadmio','#d42b2b'],['Bermellón','#e5401e'],['Carmín','#c01840'],
+  ['Rosa quinacridona','#c83870'],['Granate','#7a1020'],['Rojo venecia','#c03828'],
+  ['Tierra roja','#a83018'],['Siena tostada','#8a4212'],['Siena natural','#a8602a'],
+  ['Tierra sombra','#5a3828'],['Umber natural','#734a2e'],['Ocre amarillo','#c8a238'],
+  ['Nápoles amarillo','#eed870'],['Amarillo cadmio','#f2c800'],['Amarillo limón','#eee050'],
+  ['Amarillo cromo','#d4af00'],['Naranja cadmio','#e07020'],['Naranja tostado','#c05010'],
+  ['Verde viridiana','#3e7d50'],['Verde savia','#507830'],['Verde ftalo','#1a5c3a'],
+  ['Verde esmeralda','#2e8a55'],['Verde oliva','#7a7828'],['Verde hooker','#3a6040'],
+  ['Verde tierra','#7a8840'],['Azul Prusia','#003050'],['Azul cobalto','#2058b0'],
+  ['Azul cerúleo','#3890b8'],['Azul ultramar','#2840b8'],['Azul ftalo','#0a2868'],
+  ['Índigo','#3d2b8a'],['Violeta dioxazina','#5a1898'],['Violeta cobalto','#8028a8'],
+  ['Magenta quinacridona','#b02868'],['Lila','#9060b0'],['Cian','#0090b8'],
+  ['Blanco titanio','#f8f8f8'],['Blanco zinc','#ededec'],['Negro marfil','#1a1810'],
+  ['Negro humo','#0a0808'],['Gris Payne','#526070'],['Gris neutro','#808080'],
+  ['Beige','#d4b895'],['Carnación','#e8c0a0'],['Oro','#d4a030'],
+];
+
+// ══════════════════════════════════════════════
+// VALLEJO MODEL COLOR DATABASE (~130 colores)
+// Hex aproximados basados en documentación de la comunidad
+// ══════════════════════════════════════════════
+const VALLEJO_DB = [
+  // BLANCOS & MUY CLAROS
+  ['70.951','Blanco','#F5F5F5'],
+  ['70.919','Blanco Frío','#EEF0EE'],
+  ['70.820','Blanco Roto','#EDE9DC'],
+  ['70.918','Marfil','#EDE0B0'],
+  ['70.837','Arena Pálida','#D8CC99'],
+  // AMARILLOS
+  ['70.949','Amarillo Claro','#F5E870'],
+  ['70.952','Amarillo Limón','#FCF020'],
+  ['70.953','Amarillo Plano','#E8BC20'],
+  ['70.858','Amarillo Hielo','#F0EE80'],
+  ['70.915','Amarillo Intenso','#D4A400'],
+  ['70.948','Amarillo Dorado','#CCA000'],
+  ['70.916','Amarillo Arena','#C8B060'],
+  ['70.912','Amarillo Tostado','#C8A855'],
+  ['70.913','Ocre Amarillo','#C89030'],
+  ['70.857','Oliva Dorado','#888020'],
+  ['70.892','Oliva Amarillo','#909838'],
+  ['70.881','Verde Amarillo','#A0B820'],
+  ['70.954','Verde Amarillo (HSL)','#A8C820'],
+  // NARANJAS
+  ['70.851','Naranja Brillante','#E06010'],
+  ['70.911','Naranja Claro','#E08030'],
+  ['70.910','Rojo Naranja','#CC3010'],
+  ['70.981','Marrón Naranja','#C05010'],
+  ['70.805','Naranja Alemán','#C86020'],
+  // ROJOS
+  ['70.926','Rojo','#C01010'],
+  ['70.957','Rojo Plano','#A01010'],
+  ['70.817','Escarlata','#C02020'],
+  ['70.908','Rojo Carmín','#880018'],
+  ['70.909','Bermellón','#D03010'],
+  ['70.946','Rojo Oscuro','#780810'],
+  ['70.947','Bermellón Oscuro','#B01010'],
+  ['70.814','Rojo Quemado','#882020'],
+  ['70.859','Rojo Negro','#380808'],
+  ['70.802','Rojo Atardecer','#C85040'],
+  ['70.985','Rojo Casco','#602018'],
+  // ROSAS
+  ['70.958','Rosa','#F090A0'],
+  ['70.944','Rosa Viejo','#D08880'],
+  ['70.835','Rosa Salmón','#E09080'],
+  ['70.803','Rosa Marrón','#C07868'],
+  ['70.812','Rojo Violeta','#A02060'],
+  // PÚRPURAS & VIOLETAS
+  ['70.960','Violeta','#5A1F75'],
+  ['70.959','Púrpura','#7A1080'],
+  ['70.810','Púrpura Real','#5A1060'],
+  ['70.945','Magenta','#C0105A'],
+  ['70.811','Violeta Azul','#402090'],
+  // AZULES
+  ['70.925','Azul','#1040C0'],
+  ['70.930','Azul Oscuro','#1A2870'],
+  ['70.962','Azul Plano','#1848A0'],
+  ['70.963','Azul Medio','#2858B0'],
+  ['70.903','Azul Intermedio','#3060A0'],
+  ['70.965','Azul Prusia','#003870'],
+  ['70.899','Azul Prusia Oscuro','#0A1838'],
+  ['70.839','Ultramar','#1A2890'],
+  ['70.807','Azul Oxford','#2A3878'],
+  ['70.809','Azul Real','#2848B0'],
+  ['70.961','Azul Cielo','#6090D0'],
+  ['70.901','Azul Pastel','#8ABCD8'],
+  ['70.902','Azul Celeste','#5A98C8'],
+  ['70.844','Azul Cielo Profundo','#2070C0'],
+  ['70.906','Azul Pálido','#A0C0D8'],
+  ['70.840','Turquesa Claro','#50C0C8'],
+  ['70.966','Turquesa','#00B0C0'],
+  ['70.841','Azul Andrea','#2A5090'],
+  ['70.808','Azul Verde','#2A7890'],
+  ['70.964','Azul Campo','#406090'],
+  ['70.900','Azul Mirage Francés','#3A5880'],
+  ['70.904','Gris Azul Oscuro','#3A4A60'],
+  ['70.867','Gris Azul Oscuro WWII','#3A4858'],
+  ['70.898','Azul Mar Oscuro','#2A4060'],
+  ['70.905','Gris Azul Pálido','#8898B0'],
+  ['70.907','Azul Gris Pálido','#B0BCC8'],
+  ['70.943','Gris Azul','#6080A0'],
+  // VERDES
+  ['70.942','Verde Claro','#60B048'],
+  ['70.827','Verde Lima','#80C020'],
+  ['70.885','Verde Pastel','#88C870'],
+  ['70.968','Verde Plano','#387028'],
+  ['70.891','Verde Intermedio','#587838'],
+  ['70.893','Verde Oscuro USA','#2A4820'],
+  ['70.970','Verde Profundo','#0A4020'],
+  ['70.838','Esmeralda','#00A040'],
+  ['70.895','Verde Cañonera','#3A4E30'],
+  ['70.897','Verde Bronce','#2A4028'],
+  ['70.894','Verde Oliva Camuflaje','#586830'],
+  ['70.879','Marrón Verde','#607030'],
+  ['70.886','Gris Verde','#607060'],
+  ['70.868','Verde Mar Oscuro','#4A6858'],
+  ['70.866','Gris Verdoso','#6A7060'],
+  ['70.833','Verde Brillante Cam.','#6A8038'],
+  ['70.967','Verde Oliva','#607020'],
+  ['70.887','Verde Oliva USA','#607028'],
+  ['70.888','Gris Oliva','#808050'],
+  ['70.889','Marrón Oliva','#706020'],
+  ['70.850','Oliva Medio','#788030'],
+  ['70.980','Verde Negro','#1A2818'],
+  ['70.969','Verde Parque Plano','#2A6028'],
+  ['70.914','Ocre Verde','#9A9030'],
+  // MARRONES & TIERRAS
+  ['70.929','Marrón Claro','#B88058'],
+  ['70.871','Marrón Cuero','#8A5028'],
+  ['70.872','Marrón Chocolate','#3A2018'],
+  ['70.940','Marrón Silla','#7A3818'],
+  ['70.941','Tierra Sombra Tostada','#5C2010'],
+  ['70.984','Marrón Plano','#6A3818'],
+  ['70.982','Marrón Caballería','#8A3820'],
+  ['70.846','Marrón Caoba','#7A3020'],
+  ['70.874','Tierra Tostada','#A08050'],
+  ['70.875','Marrón Beige','#C0A070'],
+  ['70.876','Arena Marrón','#B89060'],
+  ['70.877','Marrón Dorado','#B08030'],
+  ['70.878','Oro Viejo','#C09030'],
+  ['70.843','Marrón Corcho','#A07040'],
+  ['70.856','Marrón Ocre','#A87028'],
+  ['70.819','Arena Iraquí','#C0AC70'],
+  ['70.873','Caqui Campo USA','#8A7040'],
+  ['70.983','Tierra Plana','#7A5020'],
+  ['70.976','Beige','#C8B488'],
+  ['70.977','Amarillo Desierto','#C8B060'],
+  ['70.978','Amarillo Oscuro','#A89040'],
+  ['70.986','Cubierta Tostada','#C0A870'],
+  ['70.988','Caqui','#8A7840'],
+  ['70.880','Gris Caqui','#989070'],
+  ['70.882','Piedra Media','#C0A050'],
+  ['70.847','Arena Oscura','#B09060'],
+  // GRISES
+  ['70.993','Gris Blanco','#E0DDD8'],
+  ['70.990','Gris Claro','#C0BEBE'],
+  ['70.992','Gris Neutro','#808080'],
+  ['70.987','Gris Medio','#606060'],
+  ['70.994','Gris Oscuro','#404040'],
+  ['70.995','Gris Alemán','#282828'],
+  ['70.989','Gris Cielo','#B0B8C0'],
+  ['70.991','Gris Mar Oscuro','#7A8088'],
+  ['70.973','Gris Mar Claro','#A8B0B8'],
+  ['70.862','Gris Negro','#282830'],
+  ['70.869','Gris Basalto','#484850'],
+  ['70.870','Gris Mar Medio','#707880'],
+  ['70.884','Gris Piedra','#9A9080'],
+  ['70.883','Gris Plata','#9090A0'],
+  // NEGROS
+  ['70.950','Negro','#0A0A0A'],
+  ['70.861','Negro Brillante','#050505'],
+  // METÁLICOS
+  ['70.997','Plata','#C0C0C0'],
+  ['70.996','Oro','#D4A020'],
+  ['70.998','Bronce','#A07830'],
+  ['70.999','Cobre','#B86028'],
+  ['70.801','Latón','#B8962A'],
+  ['70.864','Acero Natural','#909090'],
+  ['70.865','Acero Aceitoso','#5A5A60'],
+  ['70.863','Gris Metal','#505055'],
+  ['70.800','Azul Metal','#3A4858'],
+  // CARNACIONES
+  ['70.815','Tono Piel Básico','#D4B090'],
+  ['70.845','Tono Piel Soleado','#E0B878'],
+  ['70.955','Carne Plana','#D4A078'],
+  ['70.928','Carne Clara','#E8C098'],
+  ['70.927','Carne Oscura','#A85838'],
+  ['70.860','Tono Carne Medio','#D4946C'],
+  // UNIFORMES & MILITARES
+  ['70.830','Gris Campo Alemán','#5A6448'],
+  ['70.920','Uniforme Alemán','#5A6440'],
+  ['70.921','Uniforme Inglés','#7A7048'],
+  ['70.922','Verde Uniforme','#5A6C38'],
+  ['70.924','Uniforme Ruso','#708050'],
+];
+
+// ══════════════════════════════════════════════
+// OLD HOLLAND CLASSIC OIL COLOURS
+// Hex aproximados — comunidad de pintores y conocimiento de entrenamiento
+// ══════════════════════════════════════════════
+const OLDHOLLAND_DB = [
+  // BLANCOS
+  ['OH-001','Blanco de Plomo','#F5F0DF'],
+  ['OH-002','Blanco de Zinc','#F7F7F7'],
+  ['OH-003','Blanco de Titanio','#FFFFFF'],
+  ['OH-004','Blanco Cremnitz','#F2EDD8'],
+  ['OH-005','Blanco de Plomo N°2','#F0EBD5'],
+  // AMARILLOS
+  ['OH-006','Amarillo Limón de Cadmio','#FFFA5C'],
+  ['OH-007','Amarillo Claro de Cadmio','#FFE554'],
+  ['OH-008','Amarillo Medio de Cadmio','#FFC800'],
+  ['OH-009','Amarillo de Cadmio','#FFC000'],
+  ['OH-010','Amarillo Oscuro de Cadmio','#FFAA00'],
+  ['OH-011','Cadmio Amarillo-Naranja','#FF9000'],
+  ['OH-012','Amarillo de Nápoles Claro','#F5D97C'],
+  ['OH-013','Amarillo de Nápoles Oscuro','#E8B84B'],
+  ['OH-014','Nápoles Amarillo Rojizo','#EDA060'],
+  ['OH-015','Nápoles Amarillo Rojizo Oscuro','#E8A055'],
+  ['OH-016','Amarillo Indio','#E8A020'],
+  ['OH-017','Ocre Amarillo','#CC9944'],
+  ['OH-018','Ocre Amarillo Transparente','#BB9955'],
+  ['OH-019','Ocre Dorado','#BFA060'],
+  ['OH-020','Siena Natural','#C58B3A'],
+  ['OH-021','Siena Natural de Chipre','#C89050'],
+  ['OH-022','Stil de Grain Amarillo','#D4AF37'],
+  ['OH-023','Amarillo Azo','#FFD700'],
+  ['OH-024','Aureolina','#FDEE00'],
+  ['OH-025','Amarillo Transparente','#EAC840'],
+  ['OH-026','Cromo Amarillo Claro','#FFDD00'],
+  ['OH-027','Cromo Amarillo Medio','#FFB300'],
+  ['OH-028','Cromo Amarillo Oscuro','#FFA000'],
+  // NARANJAS
+  ['OH-029','Naranja de Cadmio','#FF6000'],
+  ['OH-030','Naranja Claro de Cadmio','#FF8033'],
+  ['OH-031','Naranja Cromo','#E86000'],
+  ['OH-032','Naranja Cromo Oscuro','#CC5000'],
+  // ROJOS
+  ['OH-033','Rojo Claro de Cadmio','#FF4444'],
+  ['OH-034','Rojo de Cadmio','#E83030'],
+  ['OH-035','Rojo Oscuro de Cadmio','#CC1A1A'],
+  ['OH-036','Bermellón de Cadmio','#FF3311'],
+  ['OH-037','Bermellón Extra','#FF2A15'],
+  ['OH-038','Bermellón','#E83220'],
+  ['OH-039','Laca Escarlata','#CC0020'],
+  ['OH-040','Carmín de Alizarina','#800020'],
+  ['OH-041','Carmín de Alizarina (Laca)','#7A0022'],
+  ['OH-042','Rosa Rubia','#CC4466'],
+  ['OH-043','Rubia Quinacridona','#A83045'],
+  ['OH-044','Rosa Quinacridona','#E87898'],
+  ['OH-045','Carmín','#880030'],
+  ['OH-046','Laca Carmesí','#7B1030'],
+  ['OH-047','Rojo Rubí','#9B111E'],
+  ['OH-048','Rojo Quinacridona','#CC2040'],
+  ['OH-049','Rojo Indio','#6B2020'],
+  ['OH-050','Rojo Inglés','#8B3333'],
+  ['OH-051','Ocre Rojo','#993333'],
+  ['OH-052','Tierra Rosa','#884444'],
+  ['OH-053','Rojo Veneciano','#993322'],
+  ['OH-054','Rojo Claro (Óxido)','#BB5544'],
+  ['OH-055','Ocre Rojo Transparente','#AA4433'],
+  ['OH-056','Caput Mortuum Rojo','#6B3030'],
+  ['OH-057','Marrón Rubia','#6B3333'],
+  ['OH-058','Marrón Rubia Transparente','#8B3333'],
+  ['OH-059','Laca de Rubia Oscura','#880033'],
+  // VIOLETAS / PÚRPURAS
+  ['OH-060','Violeta Quinacridona','#884488'],
+  ['OH-061','Laca Púrpura','#5E0055'],
+  ['OH-062','Violeta Cobalto Claro','#9966BB'],
+  ['OH-063','Violeta Cobalto Oscuro','#5533AA'],
+  ['OH-064','Púrpura Dioxacina','#4A0080'],
+  ['OH-065','Malva','#AA66BB'],
+  ['OH-066','Laca Rojo-Violeta','#8B2255'],
+  ['OH-067','Magenta Quinacridona','#CC1888'],
+  ['OH-068','Violeta Permanente','#773399'],
+  ['OH-069','Violeta Manganeso','#7A4488'],
+  ['OH-070','Caput Mortuum Violeta','#5C3345'],
+  ['OH-071','Marte Violeta','#7A4055'],
+  // AZULES
+  ['OH-072','Ultramar Profundo','#1B3280'],
+  ['OH-073','Ultramar Violeta','#3B33A0'],
+  ['OH-074','Azul Cobalto Oscuro','#003380'],
+  ['OH-075','Azul Cobalto','#0047BB'],
+  ['OH-076','Azul Cobalto Claro','#2255CC'],
+  ['OH-077','Azul Cerúleo','#3399CC'],
+  ['OH-078','Azul Cerúleo Cobalto','#4088BB'],
+  ['OH-079','Azul de Prusia','#003153'],
+  ['OH-080','Azul Ftalocianina','#0040A0'],
+  ['OH-081','Índigo','#1B2A48'],
+  ['OH-082','Azul Manganeso','#22AACC'],
+  ['OH-083','Azul Turquesa','#2288AA'],
+  ['OH-084','Cobalto Turquesa','#2A8895'],
+  ['OH-085','Azul Cian','#0099CC'],
+  // VERDES
+  ['OH-086','Viridiana','#40826D'],
+  ['OH-087','Verde Ftalocianina','#00946A'],
+  ['OH-088','Tierra Verde','#8FA888'],
+  ['OH-089','Tierra Verde Tostada','#6A7050'],
+  ['OH-090','Verde Óxido de Cromo','#4A7C59'],
+  ['OH-091','Verde Óxido de Cromo Oscuro','#3A6B48'],
+  ['OH-092','Verde Esmeralda','#22BB78'],
+  ['OH-093','Verde Cobalto Claro','#77B5A4'],
+  ['OH-094','Verde Cobalto Oscuro','#4A9080'],
+  ['OH-095','Verde Savia','#507D2A'],
+  ['OH-096','Verde Oliva','#6B6B3A'],
+  ['OH-097','Verde Óxido Transparente','#5C6644'],
+  ['OH-098','Verde Cinabrio Amarillo','#88A040'],
+  ['OH-099','Verde Permanente Claro','#66A858'],
+  ['OH-100','Verde Permanente Oscuro','#3A7040'],
+  ['OH-101','Cinabrio Verde','#6A9055'],
+  ['OH-102','Verde Veronés','#4E8060'],
+  // TIERRAS / MARRONES
+  ['OH-103','Sombra Natural','#7A6144'],
+  ['OH-104','Sombra Natural Claro','#9A7A55'],
+  ['OH-105','Sombra Tostada','#8B4513'],
+  ['OH-106','Siena Tostada','#C85A38'],
+  ['OH-107','Siena Tostada de Chipre','#B84A30'],
+  ['OH-108','Siena Tostada Transparente','#C05030'],
+  ['OH-109','Siena Natural Transparente','#B88040'],
+  ['OH-110','Tierra de Cassel','#593319'],
+  ['OH-111','Cassel Extra','#4A2A10'],
+  ['OH-112','Bistre','#5C4033'],
+  ['OH-113','Asfalto','#3D2B1F'],
+  ['OH-114','Sepia Caliente','#4A3020'],
+  ['OH-115','Sepia Extra','#3A2015'],
+  ['OH-116','Sombra Verde','#6A6050'],
+  ['OH-117','Sombra Verdosa','#6A6050'],
+  ['OH-118','Marrón Marsella','#7A4030'],
+  ['OH-119','Marrón Transparente','#6B4422'],
+  // NEGROS / GRISES
+  ['OH-120','Negro Marfil','#1C1C1C'],
+  ['OH-121','Negro de Humo','#0A0A0A'],
+  ['OH-122','Negro de Hueso','#141414'],
+  ['OH-123','Negro Azulado','#1A1A28'],
+  ['OH-124','Gris de Payne','#40424F'],
+  ['OH-125','Gris Neutro','#606060'],
+  ['OH-126','Gris Davy','#555555'],
+  ['OH-127','Gris Pizarra','#708090'],
+  ['OH-128','Gris Azulado','#6A7080'],
+  ['OH-129','Gris Caliente','#6A6258'],
+  ['OH-130','Grafito','#3A3A3A'],
+];
+
+function getClosestOldHolland(hex, n = 3) {
+  return OLDHOLLAND_DB
+    .map(([code, name, vhex]) => {
+      const [r1,g1,b1] = hexToRgb(hex);
+      const [r2,g2,b2] = hexToRgb(vhex);
+      const dist = Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+      const pct  = Math.round((1 - dist / 441.67) * 100);
+      return { code, name, hex: vhex, pct };
+    })
+    .sort((a, b) => b.pct - a.pct)
+    .slice(0, n);
+}
+
+function getClosestVallejo(hex, n = 3) {
+  return VALLEJO_DB
+    .map(([code, name, vhex]) => {
+      const [r1,g1,b1] = hexToRgb(hex);
+      const [r2,g2,b2] = hexToRgb(vhex);
+      const dist = Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+      const pct  = Math.round((1 - dist / (Math.sqrt(3)*255)) * 100);
+      return { code, name, hex: vhex, pct };
+    })
+    .sort((a, b) => b.pct - a.pct)
+    .slice(0, n);
+}
+
+function renderVallejoPanel(palette, containerId, brand = 'vallejo') {
+  const container = document.getElementById(containerId);
+  if (!container || !palette.length) return;
+  container.innerHTML = palette.map(srcHex => {
+    const matches = brand === 'oldholland'
+      ? getClosestOldHolland(srcHex, 3)
+      : getClosestVallejo(srcHex, 3);
+    return `
+      <div class="vallejo-row">
+        <div class="vallejo-src" style="background:${srcHex}" title="${srcHex}"></div>
+        <div class="vallejo-arrow">→</div>
+        <div class="vallejo-matches">
+          ${matches.map(m => `
+            <div class="vallejo-match">
+              <div class="vallejo-match-swatch" style="background:${m.hex}"></div>
+              <div class="vallejo-match-info">
+                <div class="vallejo-match-code">${m.code}</div>
+                <div class="vallejo-match-name">${m.name}</div>
+                <div class="vallejo-match-pct">${m.pct}% similar</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function switchPaintBrand(panelId, brand, btn) {
+  const panel = document.getElementById(panelId);
+  panel.querySelectorAll('.paint-brand-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  panel.dataset.brand = brand;
+  let palette;
+  if (panelId.includes('Sec1')) palette = currentPalette;
+  else if (panelId.includes('Sec3')) palette = extractedColors;
+  else palette = [];
+  renderVallejoPanel(palette, panelId + 'Body', brand);
+}
+
+function toggleVallejoPanel(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+function toggleArtistVallejo(aid) {
+  const panel = document.getElementById(`artistVallejo-${aid}`);
+  const btn   = document.getElementById(`vallejoBtn-${aid}`);
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open');
+  btn.classList.toggle('active', !isOpen);
+  btn.textContent = isOpen ? 'Pinturas ▾' : 'Pinturas ▴';
+  if (!isOpen && !panel.dataset.loaded) {
+    panel.innerHTML = `
+      <div class="artist-vallejo-header">
+        <div class="paint-brand-tabs">
+          <button class="paint-brand-tab active" onclick="switchArtistPaintBrand(${aid},'vallejo',this)">Vallejo</button>
+          <button class="paint-brand-tab" onclick="switchArtistPaintBrand(${aid},'oldholland',this)">Old Holland</button>
+        </div>
+      </div>
+      <div id="artistVallejoBody-${aid}"></div>`;
+    renderVallejoPanel(ARTISTS[aid].colors, `artistVallejoBody-${aid}`, 'vallejo');
+    panel.dataset.loaded = '1';
+  }
+}
+
+function switchArtistPaintBrand(aid, brand, btn) {
+  btn.closest('.artist-vallejo-panel').querySelectorAll('.paint-brand-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVallejoPanel(ARTISTS[aid].colors, `artistVallejoBody-${aid}`, brand);
+}
+
+function colorDist(h1,h2){
+  const [r1,g1,b1]=hexToRgb(h1),[r2,g2,b2]=hexToRgb(h2);
+  return Math.sqrt((r1-r2)**2+(g1-g2)**2+(b1-b2)**2);
+}
+function getNearestPaint(hex){
+  let best='',bestD=Infinity;
+  PAINT_DB.forEach(([n,r])=>{const d=colorDist(hex,r);if(d<bestD){bestD=d;best=n;}});
+  return best;
+}
+function paletteSimilarity(pal1,pal2){
+  const MAX=Math.sqrt(3)*255;
+  let total=0;
+  pal1.forEach(h1=>{
+    let minD=Infinity;
+    pal2.forEach(h2=>{minD=Math.min(minD,colorDist(h1,h2));});
+    total+=(1-minD/MAX)*100;
+  });
+  return Math.round(total/pal1.length);
+}
+
+// ══════════════════════════════════════════════
+// GENERATORS
+// ══════════════════════════════════════════════
+const DESCRIPTIONS={
+  ryb:'Rueda de color tradicional de artistas (Rojo-Amarillo-Azul). Complementarios, análogos y triádicos calculados en espacio RYB.',
+  cmy:'Modelo substractivo Cian-Magenta-Amarillo usado en pigmentos y pintura. Muestra primarios, secundarios y terciarios.',
+  munsell:'Sistema Munsell — tres dimensiones independientes: Hue (familia de tono: R, YR, Y, GY, G, BG, B, PB, P, RP con 4 subtonos cada una), Value (luminosidad perceptual 1–9, de negro a blanco) y Chroma (distancia desde el gris neutro del mismo Value, 0–24). Chroma ≠ Saturación: la saturación HSL es relativa al máximo posible, mientras el Chroma Munsell es una medida absoluta y perceptualmente uniforme. Notación: "5R 7/4" = tono rojo medio, Value 7, Chroma 4. Nota: valores aproximados para visualización en pantalla sRGB.',
+  ncs:'Natural Color System: variaciones de negrura y cromatismo sobre el tono base, desde blanco puro hasta negro absoluto.',
+  ostwald:'Triángulo de Ostwald: mezclas del color puro con blanco y negro en distintas proporciones.',
+  hsl:'Modelo HSL digital: análogos, complementario, triádico y variaciones de saturación y luminosidad.',
+  oklch:'Espacio perceptual moderno OKLCH: hues separados 30° con percepción uniforme de luminosidad.',
+  temperature:'Temperatura de color: paleta de cálidos (rojos, naranjas, amarillos) y fríos (azules, verdes, violetas).',
+};
+
+function generateRYB(hex){
+  let[h,s,l]=hexToHsl(hex),rybH=hslToRyb(h);
+  return[[0,'Base'],[30,'Análogo +30'],[60,'Análogo +60'],[120,'Complementario'],[150,'Triádico A'],[180,'Triádico B'],[210,'Cuadrático']]
+    .map(([a,n])=>({hex:hslToHex(rybToHsl((rybH+a)%360),s,l),name:n}));
+}
+function generateCMY(hex){
+  return[
+    {name:'Base',hex},{name:'Cian puro',hex:rgbToHex(0,255,255)},{name:'Magenta puro',hex:rgbToHex(255,0,255)},
+    {name:'Amarillo puro',hex:rgbToHex(255,255,0)},{name:'C+M → Azul',hex:rgbToHex(0,0,255)},
+    {name:'M+Y → Rojo',hex:rgbToHex(255,0,0)},{name:'C+Y → Verde',hex:rgbToHex(0,255,0)},
+    {name:'C+M+Y → Negro',hex:rgbToHex(20,20,20)},
+  ];
+}
+// ── MUNSELL SYSTEM — 3-AXIS IMPLEMENTATION ──
+
+const MUNSELL_HUES = [
+  '2.5R','5R','7.5R','10R',
+  '2.5YR','5YR','7.5YR','10YR',
+  '2.5Y','5Y','7.5Y','10Y',
+  '2.5GY','5GY','7.5GY','10GY',
+  '2.5G','5G','7.5G','10G',
+  '2.5BG','5BG','7.5BG','10BG',
+  '2.5B','5B','7.5B','10B',
+  '2.5PB','5PB','7.5PB','10PB',
+  '2.5P','5P','7.5P','10P',
+  '2.5RP','5RP','7.5RP','10RP'
+];
+
+// Approximate sRGB/HSL hue (0–359°) for each of the 40 Munsell sub-tones
+const MUNSELL_HSL_DEGS = [
+  355,0,7,14,    // R
+  18,22,30,42,   // YR
+  50,58,65,75,   // Y
+  82,95,108,118, // GY
+  122,128,140,155,// G
+  165,175,185,195,// BG
+  202,210,220,232,// B
+  238,244,254,264,// PB
+  272,282,296,308,// P
+  318,332,342,350 // RP
+];
+
+// Munsell hue index → HSL hex
+function munsellToHex(hueIdx, value, chroma) {
+  const hslH = (MUNSELL_HSL_DEGS[hueIdx] + 360) % 360;
+  const lightness   = 5 + ((value - 1) / 8) * 88;       // V1→5%, V9→93%
+  const saturation  = Math.min(100, (chroma / 24) * 100);
+  return hslToHex(hslH, saturation, lightness);
+}
+
+// Rough sRGB gamut boundary: high chroma at extreme values is not reproducible
+function munsellInGamut(value, chroma) {
+  const t = (value - 1) / 8;
+  const maxC = Math.round(4 * t * (1 - t) * 26); // parabola peaking ~13 at V5
+  return chroma <= Math.max(2, maxC);
+}
+
+// Find nearest Munsell hue index from HSL hue degree
+function hexToMunsellIdx(hex) {
+  const [h] = hexToHsl(hex);
+  let best = 0, bestD = 999;
+  MUNSELL_HSL_DEGS.forEach((deg, i) => {
+    const d = Math.abs(((deg - h + 540) % 360) - 180);
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+
+// Return "H V/C" notation string for a given hex
+function hexToMunsellNotation(hex) {
+  const [, s, l] = hexToHsl(hex);
+  const hIdx  = hexToMunsellIdx(hex);
+  const value = Math.max(1, Math.min(9, Math.round(1 + (l - 5) / 88 * 8)));
+  const chroma = Math.min(24, Math.round(s / 100 * 24 / 2) * 2);
+  return `${MUNSELL_HUES[hIdx]} ${value}/${chroma}`;
+}
+
+// Read current Munsell slider values
+function mReadSliders() {
+  return {
+    hIdx: parseInt(document.getElementById('mHueSlider').value),
+    val:  parseInt(document.getElementById('mValSlider').value),
+    chr:  parseInt(document.getElementById('mChrSlider').value)
+  };
+}
+
+// Sync slider label display and regenerate (called by slider oninput)
+let _mslLock = false;
+function mSyncSliders() {
+  const { hIdx, val, chr } = mReadSliders();
+  document.getElementById('mHueLabel').textContent = MUNSELL_HUES[hIdx];
+  document.getElementById('mValLabel').textContent = val;
+  document.getElementById('mChrLabel').textContent = chr;
+  // Update baseColor so generate() reads the slider-derived hex
+  document.getElementById('baseColor').value = munsellToHex(hIdx, val, chr);
+  _mslLock = true;
+  generate();
+}
+
+// Initialise sliders from an external hex (e.g. when switching to Munsell mode)
+function mSetSlidersFromHex(hex) {
+  const [, s, l] = hexToHsl(hex);
+  const hIdx  = hexToMunsellIdx(hex);
+  const val   = Math.max(1, Math.min(9, Math.round(1 + (l - 5) / 88 * 8)));
+  const chr   = Math.min(24, Math.round(s / 100 * 24 / 2) * 2);
+  document.getElementById('mHueSlider').value = hIdx;
+  document.getElementById('mValSlider').value = val;
+  document.getElementById('mChrSlider').value = chr;
+  document.getElementById('mHueLabel').textContent = MUNSELL_HUES[hIdx];
+  document.getElementById('mValLabel').textContent = val;
+  document.getElementById('mChrLabel').textContent = chr;
+}
+
+// Toggle Hue Page collapse
+function toggleMunsellPage() {
+  const body = document.getElementById('munsellPageBody');
+  const btn  = document.querySelector('#munsellHuePage .munsell-page-toggle');
+  const now  = body.classList.toggle('collapsed');
+  if (btn) btn.textContent = now ? '▼' : '▲';
+}
+
+// Build the Hue Page grid (rows=Value, cols=Chroma)
+function buildMunsellHuePage(hIdx) {
+  document.getElementById('munsellPageHueName').textContent = MUNSELL_HUES[hIdx];
+  const CHROMAS = [0, 2, 4, 6, 8, 10, 12];
+  const VALS    = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+  let html = '<div class="munsell-page-grid">';
+  // Header row
+  html += '<div class="munsell-grid-hdr"></div>';
+  CHROMAS.forEach(c => { html += `<div class="munsell-grid-hdr">/${c}</div>`; });
+  // Data rows
+  VALS.forEach(v => {
+    html += `<div class="munsell-grid-vlbl">V${v}</div>`;
+    CHROMAS.forEach(c => {
+      const h = munsellToHex(hIdx, v, c);
+      if (munsellInGamut(v, c)) {
+        html += `<div class="munsell-chip" style="background:${h}" title="${MUNSELL_HUES[hIdx]} ${v}/${c}" onclick="bcpSyncColor('${h}');generate()"></div>`;
+      } else {
+        html += `<div class="munsell-chip oog" title="${MUNSELL_HUES[hIdx]} ${v}/${c} (fuera de gamut sRGB)"></div>`;
+      }
+    });
+  });
+  html += '</div>';
+  document.getElementById('munsellPageBody').innerHTML = html;
+}
+
+// New generateMunsell — reads slider state, returns grouped swatches
+function generateMunsell(hex) {
+  // Use slider state if available, else derive from hex
+  const slider = document.getElementById('mHueSlider');
+  let hIdx, val, chr;
+  if (slider) {
+    ({ hIdx, val, chr } = mReadSliders());
+  } else {
+    const [, s, l] = hexToHsl(hex);
+    hIdx = hexToMunsellIdx(hex);
+    val  = Math.max(1, Math.min(9, Math.round(1 + (l - 5) / 88 * 8)));
+    chr  = Math.min(24, Math.round(s / 100 * 24 / 2) * 2);
+  }
+  const swatches = [];
+  // Group 1 — Value variations (same H, same C)
+  [3, 5, 7, 9].forEach(v => {
+    const mn = `${MUNSELL_HUES[hIdx]} ${v}/${chr}`;
+    swatches.push({ hex: munsellToHex(hIdx, v, chr), name: mn, group: 'Value', munsell: mn });
+  });
+  // Group 2 — Chroma variations (same H, same V)
+  [2, 6, 12, 18].forEach(c => {
+    const mn = `${MUNSELL_HUES[hIdx]} ${val}/${c}`;
+    swatches.push({ hex: munsellToHex(hIdx, val, c), name: mn, group: 'Chroma', munsell: mn });
+  });
+  // Group 3 — Complementary (opposite hue, ±20 steps)
+  const compIdx = (hIdx + 20) % 40;
+  const mnComp  = `${MUNSELL_HUES[compIdx]} ${val}/${chr}`;
+  swatches.push({ hex: munsellToHex(compIdx, val, chr), name: mnComp, group: 'Complementario', munsell: mnComp });
+  // Group 4 — Analogous (±1, ±2 hue steps)
+  [-2, -1, 1, 2].map(d => ((hIdx + d + 40) % 40)).forEach(i => {
+    const mn = `${MUNSELL_HUES[i]} ${val}/${chr}`;
+    swatches.push({ hex: munsellToHex(i, val, chr), name: mn, group: 'Análogos', munsell: mn });
+  });
+  return swatches;
+}
+function generateNCS(hex){
+  let[h,s,l]=hexToHsl(hex);
+  return[
+    {name:'Color base',hex},
+    {name:'+ Blanco S 1000',hex:hslToHex(h,s,Math.min(95,l+35))},
+    {name:'+ Blanco S 0500',hex:hslToHex(h,s,Math.min(95,l+20))},
+    {name:'Neutro S 5000',hex:hslToHex(h,5,50)},
+    {name:'+ Negro S 7000',hex:hslToHex(h,s,Math.max(10,l-30))},
+    {name:'+ Negro S 9000',hex:hslToHex(h,s,Math.max(5,l-45))},
+    {name:'Complementario',hex:hslToHex((h+180)%360,s,l)},
+  ];
+}
+function generateOstwald(hex){
+  const w='#ffffff',k='#080808';
+  return[
+    {name:'100% puro',hex},{name:'75% + 25% blanco',hex:mix(hex,w,0.25)},
+    {name:'50% + 50% blanco',hex:mix(hex,w,0.5)},{name:'25% + 75% blanco',hex:mix(hex,w,0.75)},
+    {name:'75% + 25% negro',hex:mix(hex,k,0.25)},{name:'50% + 50% negro',hex:mix(hex,k,0.5)},
+    {name:'25% + 75% negro',hex:mix(hex,k,0.75)},{name:'50% B + 50% N',hex:mix(w,k,0.5)},
+  ];
+}
+function generateHSL(hex){
+  let[h,s,l]=hexToHsl(hex);
+  return[
+    {name:'Base',hex},{name:'Análogo −30°',hex:hslToHex(h-30,s,l)},{name:'Análogo +30°',hex:hslToHex(h+30,s,l)},
+    {name:'Complementario',hex:hslToHex(h+180,s,l)},{name:'Triádico A',hex:hslToHex(h+120,s,l)},
+    {name:'Triádico B',hex:hslToHex(h+240,s,l)},{name:'Saturación baja',hex:hslToHex(h,s*0.4,l)},
+    {name:'Luminosidad alta',hex:hslToHex(h,s,Math.min(90,l+25))},
+  ];
+}
+function generateOKLCH(hex){
+  let[h,s,l]=hexToHsl(hex);
+  return[0,30,60,90,150,210,270].map((a,i)=>({hex:hslToHex((h+a)%360,s,l),name:['Base','H+30','H+60','H+90','H+150','H+210','H+270'][i]}));
+}
+function generateTemperature(hex){
+  let[h]=hexToHsl(hex);
+  const warm=[
+    {name:'Rojo cadmio',hex:hslToHex(5,85,45)},{name:'Rojo carmín',hex:hslToHex(350,80,40)},
+    {name:'Naranja',hex:hslToHex(25,90,55)},{name:'Amarillo ocre',hex:hslToHex(42,75,55)},
+    {name:'Amarillo limón',hex:hslToHex(58,90,60)},
+  ];
+  const cool=[
+    {name:'Azul Prusia',hex:hslToHex(210,80,25)},{name:'Azul cobalto',hex:hslToHex(225,70,45)},
+    {name:'Azul cerúleo',hex:hslToHex(200,65,55)},{name:'Verde esmeralda',hex:hslToHex(150,55,40)},
+    {name:'Violeta',hex:hslToHex(270,60,45)},
+  ];
+  const isWarm=(h>=0&&h<90)||(h>=330);
+  return isWarm?[...warm.slice(0,4),{name:'Base',hex},...cool.slice(0,3)]
+               :[...warm.slice(0,3),{name:'Base',hex},...cool.slice(0,4)];
+}
+const GENERATORS={ryb:generateRYB,cmy:generateCMY,munsell:generateMunsell,ncs:generateNCS,ostwald:generateOstwald,hsl:generateHSL,oklch:generateOKLCH,temperature:generateTemperature};
+
+// ══════════════════════════════════════════════
+// SECTION 1 — GENERATE
+// ══════════════════════════════════════════════
+let currentPalette=[];
+
+const SYSTEM_HINTS = {
+  ryb:         'Rueda tradicional de artistas. Ideal para mezclas de pintura.',
+  cmy:         'Modelo sustractivo. Base de la impresión y los pigmentos reales.',
+  munsell:     'Sistema científico de Hue, Value y Chroma independientes.',
+  ncs:         'Basado en percepción humana. Estándar en diseño industrial.',
+  ostwald:     'Define colores como mezcla de tono puro, blanco y negro.',
+  hsl:         'Modelo digital. Fácil de ajustar para interfaces y pantallas.',
+  oklch:       'Perceptualmente uniforme. El más preciso para diseño moderno.',
+  temperature: 'Clasifica colores por su sensación cálida o fría.',
+};
+
+function generate(){
+  const hex=document.getElementById('baseColor').value;
+  const sys=document.getElementById('systemSelect').value;
+  document.getElementById('systemDesc').textContent=DESCRIPTIONS[sys];
+  const hintEl = document.getElementById('systemHint');
+  if (SYSTEM_HINTS[sys]) { hintEl.textContent = SYSTEM_HINTS[sys]; hintEl.style.display = 'block'; }
+  else { hintEl.style.display = 'none'; }
+  // Harmony label
+  const HARMONY_LABELS = {
+    ryb: 'RYB — Sistema tradicional de artistas',
+    cmy: 'CMY — Sustractivo para pigmentos',
+    munsell: 'Munsell — Tono / Valor / Croma',
+    ncs: 'NCS — Natural Color System',
+    ostwald: 'Ostwald — Color puro + blanco + negro',
+    hsl: 'HSL — Sistema digital',
+    oklch: 'LAB/OKLCH — Perceptual moderno',
+    temperature: 'Temperatura — Cálidos vs fríos',
+  };
+  const hl = document.getElementById('harmonyLabel');
+  if (hl) { hl.textContent = HARMONY_LABELS[sys] || sys; hl.style.display = 'block'; }
+  // Show/hide Munsell-only panels
+  const _mCtrl = document.getElementById('munsellControls');
+  const _mPage = document.getElementById('munsellHuePage');
+  if (_mCtrl) _mCtrl.style.display = sys === 'munsell' ? 'block' : 'none';
+  if (_mPage) _mPage.style.display = sys === 'munsell' ? 'block' : 'none';
+
+  // Sync Munsell sliders from baseColor when not triggered by slider itself
+  if (sys === 'munsell' && _mCtrl && !_mslLock) mSetSlidersFromHex(hex);
+  _mslLock = false;
+
+  const swatches=GENERATORS[sys](hex);
+  currentPalette=swatches.map(s=>s.hex);
+
+  const row=document.getElementById('swatchesRow');
+  row.innerHTML='';
+
+  if (sys === 'munsell') {
+    // ── Munsell: grouped rendering with H V/C notation ──
+    let lastGroup = null;
+    swatches.forEach(({hex:c, name, group, munsell:mn}) => {
+      if (group !== lastGroup) {
+        const gl = document.createElement('div');
+        gl.className = 'munsell-group-label' + (lastGroup === null ? ' first' : '');
+        const GL = { Value:'Variaciones de Value', Chroma:'Variaciones de Chroma',
+                     Complementario:'Complementario Munsell', Análogos:'Análogos' };
+        gl.textContent = GL[group] || group;
+        row.appendChild(gl);
+        lastGroup = group;
+      }
+      const paint = getNearestPaint(c);
+      const emo = getColorEmotion(c);
+      const div = document.createElement('div');
+      div.className = 'swatch-wrap';
+      div.innerHTML = `
+        <div class="swatch" style="background:${c}" title="Copiar ${c}" onclick="copyHex('${c}')">
+          <div class="swatch-overlay"><div class="swatch-overlay-text">${paint}\n${emo.emoji} ${emo.label}</div></div>
+        </div>
+        <div class="swatch-label">
+          <span class="swatch-hex">${c}</span>
+          <span class="munsell-notation">${mn||''}</span>
+          <span class="swatch-role">${name||''}</span>
+          <button class="swatch-add-btn" onclick="addToCustom('${c}')">＋ añadir</button>
+        </div>
+        <div class="swatch-emotion">${emo.emoji} ${emo.label}</div>`;
+      row.appendChild(div);
+    });
+    buildMunsellHuePage(parseInt(document.getElementById('mHueSlider').value));
+  } else {
+    // ── All other systems: original flat rendering ──
+    swatches.forEach(({hex:c,name})=>{
+      const paint=getNearestPaint(c);
+      const emo=getColorEmotion(c);
+      const div=document.createElement('div');
+      div.className='swatch-wrap';
+      div.innerHTML=`
+        <div class="swatch" style="background:${c}" title="Copiar ${c}" onclick="copyHex('${c}')">
+          <div class="swatch-overlay"><div class="swatch-overlay-text">${paint}\n${emo.emoji} ${emo.label}</div></div>
+        </div>
+        <div class="swatch-label">
+          <span class="swatch-hex">${c}</span>
+          <span class="swatch-role">${name||''}</span>
+          <button class="swatch-add-btn" onclick="addToCustom('${c}')">＋ añadir</button>
+        </div>
+        <div class="swatch-emotion">${emo.emoji} ${emo.label}</div>`;
+      row.appendChild(div);
+    });
+  }
+
+  drawWheel(swatches, sys, hex);
+  updateRelated();
+  renderArtists();
+
+  // Panel pinturas — sección 1 (siempre expandido)
+  const vPanel1 = document.getElementById('vallejoPanelSec1');
+  vPanel1.style.display = 'block';
+  vPanel1.classList.remove('collapsed'); // forzar expandido cada vez
+  renderVallejoPanel(currentPalette, 'vallejoPanelSec1Body', document.getElementById('vallejoPanelSec1').dataset.brand || 'vallejo');
+}
+
+function updateRelated(){
+  if(!currentPalette.length) return;
+  const scored=[...ARTISTS].map(a=>({...a,score:paletteSimilarity(currentPalette,a.colors)}))
+    .sort((a,b)=>b.score-a.score).slice(0,5);
+  document.getElementById('relatedPanel').style.display='block';
+  document.getElementById('relatedList').innerHTML=scored.map(a=>`
+    <div class="related-item">
+      <div class="related-mini-swatches">
+        ${a.colors.slice(0,6).map(c=>`<div class="related-mini-sw" style="background:${c}"></div>`).join('')}
+      </div>
+      <div class="related-info">
+        <div class="related-name">${a.name}</div>
+        <div class="related-score">${a.score}% similar</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// COPY / TOAST
+// ══════════════════════════════════════════════
+function copyHex(hex){
+  navigator.clipboard.writeText(hex).catch(()=>{
+    let ta=document.createElement('textarea');ta.value=hex;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+  showToast(`Copiado: ${hex}`);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+// ══════════════════════════════════════════════
+// COLOR WHEEL — ROSA CROMÁTICA
+// ══════════════════════════════════════════════
+
+// Which relationship types are active per system (for filter buttons)
+const WHEEL_SHOW = {
+  ryb:         ['complementary','analogous','triadic'],
+  hsl:         ['complementary','analogous','triadic'],
+  oklch:       ['complementary','analogous','triadic'],
+  munsell:     ['complementary','analogous','triadic'],
+  cmy:         ['complementary','analogous','triadic'],
+  ncs:         ['complementary','analogous'],
+  ostwald:     ['complementary','analogous'],
+  temperature: ['complementary','analogous','temperature'],
+};
+
+// SVG namespace helper
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+// Arc path along the ring at radius r from hue0 to hueN (clockwise short arc)
+function ringArc(cx, cy, r, hue0, hueN) {
+  const a0 = (hue0 - 90) * Math.PI / 180;
+  const aN = (hueN - 90) * Math.PI / 180;
+  const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+  const xN = cx + r * Math.cos(aN), yN = cy + r * Math.sin(aN);
+  let diff = hueN - hue0; if (diff < 0) diff += 360;
+  const large = diff > 180 ? 1 : 0;
+  return `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${xN} ${yN}`;
+}
+
+// Build annulus sector path (outer ring segment)
+function annulusSector(cx, cy, r1, r2, startDeg, endDeg) {
+  const toRad = d => d * Math.PI / 180;
+  const s1 = toRad(startDeg), e1 = toRad(endDeg);
+  const x1 = cx + r2 * Math.cos(s1), y1 = cy + r2 * Math.sin(s1);
+  const x2 = cx + r2 * Math.cos(e1), y2 = cy + r2 * Math.sin(e1);
+  const x3 = cx + r1 * Math.cos(e1), y3 = cy + r1 * Math.sin(e1);
+  const x4 = cx + r1 * Math.cos(s1), y4 = cy + r1 * Math.sin(s1);
+  const large = (endDeg - startDeg) > 180 ? 1 : 0;
+  return [
+    `M ${x1} ${y1}`,
+    `A ${r2} ${r2} 0 ${large} 1 ${x2} ${y2}`,
+    `L ${x3} ${y3}`,
+    `A ${r1} ${r1} 0 ${large} 0 ${x4} ${y4}`,
+    'Z'
+  ].join(' ');
+}
+
+// Get dot position on outer ring midpoint
+function dotPos(cx, cy, angleDeg, r) {
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+// Active filter state for wheel
+let wheelActiveFilters = new Set(['complementary','analogous','triadic','tint','shade','temperature']);
+
+function drawWheel(swatches, system, baseHex) {
+  const wrap = document.getElementById('wheelWrap');
+  const svg = document.getElementById('wheelSvg');
+  svg.innerHTML = '';
+
+  const cx = 140, cy = 140, r1 = 80, r2 = 130, rMid = 105, rInner = 50;
+  const swatchHues = swatches.map(s => hexToHsl(s.hex)[0]);
+
+  // Background circle
+  svg.appendChild(svgEl('circle', { cx, cy, r: r2 + 4, fill: '#101214' }));
+
+  // Outer ring — 36 segments of 10° each (interactive)
+  for (let i = 0; i < 36; i++) {
+    const hue = i * 10;
+    const startDeg = hue - 90 - 5;
+    const endDeg = startDeg + 10;
+    const isHighlighted = swatchHues.some(sh => {
+      let diff = Math.abs(sh - hue);
+      if (diff > 180) diff = 360 - diff;
+      return diff < 15;
+    });
+    const segHex = hslToHex(hue, 72, 52);
+    const path = svgEl('path', {
+      d: annulusSector(cx, cy, r1, r2, startDeg, endDeg),
+      fill: `hsl(${hue},70%,55%)`,
+      opacity: isHighlighted ? '1.0' : '0.18',
+      stroke: '#08090b',
+      'stroke-width': '0.5',
+      style: 'cursor:pointer; transform-origin:140px 140px; transition:transform 0.18s ease,filter 0.18s ease,opacity 0.18s ease'
+    });
+    // Hover
+    path.addEventListener('mouseenter', () => {
+      path.style.transform = 'scale(1.07)';
+      path.style.filter = `drop-shadow(0 0 5px hsl(${hue},80%,60%))`;
+      path.style.opacity = '1';
+    });
+    path.addEventListener('mouseleave', () => {
+      path.style.transform = '';
+      path.style.filter = '';
+      path.style.opacity = isHighlighted ? '1.0' : '0.18';
+    });
+    // Click → set as base color
+    path.addEventListener('click', () => {
+      // Pulse
+      path.style.animation = 'none';
+      requestAnimationFrame(() => {
+        path.style.animation = 'segPulse 0.4s ease both';
+        setTimeout(() => { path.style.animation = ''; }, 420);
+      });
+      // Ring of light
+      const flashRing = svgEl('circle', {
+        cx, cy, r: r2 + 4, fill: 'none',
+        stroke: `hsl(${hue},80%,65%)`, 'stroke-width': '5',
+        style: 'pointer-events:none'
+      });
+      svg.appendChild(flashRing);
+      flashRing.animate([{opacity:0.9},{opacity:0}], {duration:600, fill:'forwards'})
+        .addEventListener('finish', () => flashRing.remove());
+      // Sync color
+      bcpSyncColor(segHex);
+      generate();
+    });
+    svg.appendChild(path);
+  }
+
+  // Inner dark area
+  svg.appendChild(svgEl('circle', { cx, cy, r: r1, fill: '#08090b' }));
+
+  // ── Create SVG groups for each relationship type ──
+  const groupDefs = ['complementary','analogous','triadic','temperature'];
+  const groups = {};
+  groupDefs.forEach(id => {
+    const g = svgEl('g', { id: `g-${id}` });
+    svg.appendChild(g);
+    groups[id] = g;
+  });
+
+  const baseHue = baseHex ? hexToHsl(baseHex)[0] : swatchHues[0];
+
+  // Helper: find swatch whose hue is closest to targetHue
+  function nearestSwatch(targetHue) {
+    let minD = Infinity, best = 0;
+    swatchHues.forEach((h, i) => {
+      let d = Math.abs(h - targetHue); if (d > 180) d = 360 - d;
+      if (d < minD) { minD = d; best = i; }
+    });
+    return best;
+  }
+
+  // ── COMPLEMENTARY — always a true diameter at baseHue ↔ baseHue+180° ──
+  {
+    const g = groups['complementary'];
+    const compHue = (baseHue + 180) % 360;
+    const pA = dotPos(cx, cy, baseHue, r2 - 1);
+    const pB = dotPos(cx, cy, compHue, r2 - 1);
+    const siA = 0, siB = nearestSwatch(compHue);
+    g.appendChild(svgEl('line', { x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,
+      stroke:'rgba(255,255,255,0.06)','stroke-width':'18','stroke-linecap':'round'}));
+    g.appendChild(svgEl('line', { x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,
+      stroke:'rgba(255,255,255,0.22)','stroke-width':'6','stroke-linecap':'round'}));
+    g.appendChild(svgEl('line', { x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,
+      stroke:'rgba(255,255,255,0.92)','stroke-width':'2','stroke-linecap':'round'}));
+    g.appendChild(svgEl('circle', {cx,cy,r:3,fill:'rgba(255,255,255,0.5)'}));
+    [[pA,siA],[pB,siB]].forEach(([p,si]) => {
+      g.appendChild(svgEl('circle', {cx:p.x,cy:p.y,r:7,fill:'rgba(0,0,0,0.5)',stroke:'rgba(255,255,255,0.35)','stroke-width':'6'}));
+      g.appendChild(svgEl('circle', {cx:p.x,cy:p.y,r:7,fill:swatches[si].hex,stroke:'white','stroke-width':'2'}));
+    });
+  }
+
+  // ── ANALOGOUS — arc ±30° around baseHue ──
+  {
+    const g = groups['analogous'];
+    const hue0 = (baseHue - 30 + 360) % 360;
+    const hueN = (baseHue + 30) % 360;
+    const arcD = ringArc(cx, cy, rMid, hue0, hueN);
+    g.appendChild(svgEl('path', {d:arcD,fill:'none',stroke:'rgba(201,122,47,0.15)','stroke-width':'18','stroke-linecap':'round'}));
+    g.appendChild(svgEl('path', {d:arcD,fill:'none',stroke:'rgba(201,122,47,0.35)','stroke-width':'8','stroke-linecap':'round'}));
+    g.appendChild(svgEl('path', {d:arcD,fill:'none',stroke:'rgba(201,122,47,1)','stroke-width':'3','stroke-linecap':'round'}));
+    [-30, 0, 30].forEach(off => {
+      const h = (baseHue + off + 360) % 360;
+      const p = dotPos(cx, cy, h, rMid);
+      const si = nearestSwatch(h);
+      g.appendChild(svgEl('circle', {cx:p.x,cy:p.y,r:5,fill:swatches[si].hex,stroke:'rgba(201,122,47,0.9)','stroke-width':'2.5'}));
+    });
+  }
+
+  // ── TRIADIC — equilateral triangle at baseHue, +120°, +240° ──
+  {
+    const g = groups['triadic'];
+    const triadHues = [baseHue, (baseHue+120)%360, (baseHue+240)%360];
+    const triPts = triadHues.map(h => ({
+      p: dotPos(cx, cy, h, rMid),
+      hex: swatches[nearestSwatch(h)].hex
+    }));
+    const ps = triPts.map(t=>`${t.p.x},${t.p.y}`).join(' ');
+    g.appendChild(svgEl('polygon', {points:ps,fill:'rgba(240,200,80,0.08)',stroke:'none'}));
+    g.appendChild(svgEl('polygon', {points:ps,fill:'none',stroke:'rgba(240,200,80,0.15)','stroke-width':'12','stroke-linejoin':'round'}));
+    g.appendChild(svgEl('polygon', {points:ps,fill:'none',stroke:'rgba(240,200,80,0.3)','stroke-width':'5','stroke-linejoin':'round'}));
+    g.appendChild(svgEl('polygon', {points:ps,fill:'none',stroke:'rgba(240,200,80,0.95)','stroke-width':'2','stroke-linejoin':'round'}));
+    triPts.forEach(t => {
+      g.appendChild(svgEl('circle', {cx:t.p.x,cy:t.p.y,r:6,fill:'rgba(0,0,0,0.5)',stroke:'rgba(240,200,80,0.4)','stroke-width':'6'}));
+      g.appendChild(svgEl('circle', {cx:t.p.x,cy:t.p.y,r:6,fill:t.hex,stroke:'rgba(240,200,80,0.9)','stroke-width':'2'}));
+    });
+  }
+
+  // ── TEMPERATURE — warm arc (hues 0–90 + 330–360) vs cool arc (150–270) ──
+  {
+    const g = groups['temperature'];
+    // Warm zone arc: 330° → 90° (going through 0°/red)
+    const warmArc = ringArc(cx, cy, r2 - 15, 330, 90);
+    g.appendChild(svgEl('path', {d:warmArc,fill:'none',stroke:'rgba(220,80,20,0.15)','stroke-width':'14','stroke-linecap':'round'}));
+    g.appendChild(svgEl('path', {d:warmArc,fill:'none',stroke:'rgba(220,80,20,0.6)','stroke-width':'3','stroke-linecap':'round'}));
+    // Cool zone arc: 150° → 270°
+    const coolArc = ringArc(cx, cy, r2 - 15, 150, 270);
+    g.appendChild(svgEl('path', {d:coolArc,fill:'none',stroke:'rgba(40,100,220,0.15)','stroke-width':'14','stroke-linecap':'round'}));
+    g.appendChild(svgEl('path', {d:coolArc,fill:'none',stroke:'rgba(40,100,220,0.6)','stroke-width':'3','stroke-linecap':'round'}));
+    // Dividing marks at 90° and 270° (warm/cool boundaries)
+    [90, 270].forEach(h => {
+      const p = dotPos(cx, cy, h, rMid);
+      g.appendChild(svgEl('line', {x1:cx,y1:cy,x2:p.x,y2:p.y,stroke:'rgba(255,255,255,0.15)','stroke-width':'1','stroke-dasharray':'3,3'}));
+    });
+  }
+
+  // Colored dots on outer ring for each swatch
+  swatches.forEach(({ hex: c }, i) => {
+    const hue = swatchHues[i];
+    const pos = dotPos(cx, cy, hue, rMid);
+    const dot = svgEl('circle', {
+      cx: pos.x, cy: pos.y, r: 9,
+      fill: c,
+      stroke: 'white',
+      'stroke-width': '2'
+    });
+    svg.appendChild(dot);
+  });
+
+  // Center circle
+  const centerCircle = svgEl('circle', { cx, cy, r: 35, fill: '#08090b' });
+  svg.appendChild(centerCircle);
+
+  // Center circle border
+  const centerBorder = svgEl('circle', { cx, cy, r: 35, fill: 'none', stroke: '#222528', 'stroke-width': '1' });
+  svg.appendChild(centerBorder);
+
+  // Center text — system name
+  const sysNames = {
+    ryb: 'RYB', hsl: 'HSL', oklch: 'OKLCH', ncs: 'NCS',
+    ostwald: 'Ostwald', munsell: 'Munsell', cmy: 'CMY', temperature: 'Temp.'
+  };
+  const label = svgEl('text', {
+    x: cx, y: cy + 3,
+    'text-anchor': 'middle',
+    'font-size': '9',
+    fill: '#5a5d62',
+    'font-family': 'Montserrat, Segoe UI, system-ui, sans-serif'
+  });
+  label.textContent = sysNames[system] || system.toUpperCase();
+  svg.appendChild(label);
+
+  // Apply current filter visibility to groups
+  applyWheelFilters();
+
+  // Build filter buttons
+  buildWheelFilters(system);
+
+  // Build legend
+  buildWheelLegend(swatches);
+
+  // Entry animation — trigger reflow then add class
+  svg.classList.remove('wheel-enter');
+  void svg.offsetWidth;
+  svg.classList.add('wheel-enter');
+}
+
+function applyWheelFilters() {
+  ['complementary','analogous','triadic','temperature'].forEach(type => {
+    const g = document.getElementById(`g-${type}`);
+    if (g) g.style.opacity = wheelActiveFilters.has(type) ? '1' : '0';
+  });
+}
+
+const WHEEL_TIPS = {
+  complementary: {
+    title: 'Colores Complementarios',
+    desc:  'Son los colores exactamente opuestos en la rueda. Juntos crean el máximo contraste — cada uno hace que el otro se vea más intenso.',
+    use:   '🎨 Úsalos cuando quieras que algo resalte. Van Gogh usaba azul y amarillo así para darle vida a sus cuadros.',
+  },
+  analogous: {
+    title: 'Colores Análogos',
+    desc:  'Son colores vecinos en la rueda, que comparten un tono en común. Naturalmente armoniosos y tranquilos de ver.',
+    use:   '🎨 Perfectos para escenas de naturaleza, fondos suaves o cuando quieres un estado de ánimo coherente sin tensión.',
+  },
+  triadic: {
+    title: 'Colores Triádicos',
+    desc:  'Tres colores a igual distancia en la rueda (120° cada uno). Son vibrantes y equilibrados — los tres compiten por atención por igual.',
+    use:   '🎨 Ideal para obras llamativas y llenas de energía, como el arte folk de Frida Kahlo o las formas de Joan Miró.',
+  },
+  temperature: {
+    title: 'Temperatura de Color',
+    desc:  'Los cálidos (rojos, naranjas, amarillos) dan sensación de energía y cercanía. Los fríos (azules, verdes, violetas) transmiten calma y distancia.',
+    use:   '🎨 Mezclar ambos crea profundidad: los cálidos "avanzan" hacia el ojo y los fríos "retroceden". Truco clásico en pintura.',
+  },
+};
+
+function buildWheelFilters(system) {
+  const filtersDiv = document.getElementById('wheelFilters');
+  filtersDiv.innerHTML = '';
+  const typeLabels = {
+    complementary:'Complementario', analogous:'Análogo',
+    triadic:'Triádico', temperature:'Temperatura'
+  };
+
+  const tt     = document.getElementById('wheelTooltip');
+  const ttTitle = document.getElementById('ttTitle');
+  const ttDesc  = document.getElementById('ttDesc');
+  const ttUse   = document.getElementById('ttUse');
+
+  function showTip(type, el) {
+    const tip = WHEEL_TIPS[type]; if (!tip) return;
+    ttTitle.textContent = tip.title;
+    ttDesc.textContent  = tip.desc;
+    ttUse.innerHTML     = tip.use;
+    const rect = el.getBoundingClientRect();
+    tt.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+    tt.style.top  = (rect.bottom + 8) + 'px';
+    tt.classList.add('visible');
+  }
+  function hideTip() { tt.classList.remove('visible'); }
+  const presentTypes = new Set(WHEEL_SHOW[system] || ['complementary','analogous','triadic']);
+  // Reset filters to show all present types
+  wheelActiveFilters = new Set([...presentTypes]);
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'wheel-filter-btn active';
+  allBtn.textContent = 'Todos';
+  allBtn.onclick = () => {
+    presentTypes.forEach(t => wheelActiveFilters.add(t));
+    filtersDiv.querySelectorAll('.wheel-filter-btn').forEach(b => b.classList.add('active'));
+    applyWheelFilters();
+  };
+  filtersDiv.appendChild(allBtn);
+
+  presentTypes.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'wheel-filter-btn active';
+    btn.textContent = typeLabels[type] || type;
+    btn.onclick = () => {
+      if (wheelActiveFilters.has(type)) { wheelActiveFilters.delete(type); btn.classList.remove('active'); }
+      else { wheelActiveFilters.add(type); btn.classList.add('active'); }
+      allBtn.classList.toggle('active', [...presentTypes].every(t => wheelActiveFilters.has(t)));
+      applyWheelFilters();
+    };
+    btn.addEventListener('mouseenter', () => showTip(type, btn));
+    btn.addEventListener('mouseleave', hideTip);
+    filtersDiv.appendChild(btn);
+  });
+}
+
+function buildWheelLegend(swatches) {
+  const legend = document.getElementById('wheelLegend');
+  legend.innerHTML = swatches.map((s, i) => {
+    const [h] = hexToHsl(s.hex);
+    return `<div style="display:flex;align-items:center;gap:0.4rem">
+      <div style="width:12px;height:12px;border-radius:50%;background:${s.hex};border:1px solid rgba(255,255,255,0.15);flex-shrink:0"></div>
+      <span style="color:#606470">${i}</span>
+      <span style="color:#888">${s.name||s.hex}</span>
+      <span style="color:#606470;font-size:0.6rem">H${Math.round(h)}°</span>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// SECTION 2 — ARTISTS
+// ══════════════════════════════════════════════
+const ARTISTS=[
+  {name:'Vincent van Gogh',period:'Post-impresionismo, 1880s-1890s',tags:['post-impresionismo','siglo XIX'],
+   desc:'Contrastes complementarios intensos: azul ultramar contra amarillo cromático. Pinceladas expresivas y vibrantes.',
+   colors:['#1a3a6b','#2e5fa3','#f0c030','#e8a020','#4a7a3a','#c8d870','#8b3a2a','#d4a060'],
+   w:[22,23,16,12,10,5,7,5]},
+  {name:'Johannes Vermeer',period:'Barroco holandés, 1650s-1670s',tags:['barroco','siglo XVII'],
+   desc:'Lapislázuli genuino (azul ultramar), blanco de plomo cálido y ocre amarillo. Sombras en tierra siena, luces en blanco de plomo puro — equilibrio luminoso de la Escuela de Delft.',
+   colors:['#1c3a6e','#4a72b0','#c8922a','#7a3d10','#f0ead8','#5a8050','#7a3030','#ede8dc'],
+   w:[20,18,16,12,10,8,9,7]},
+  {name:'Rembrandt van Rijn',period:'Barroco, 1630s-1660s',tags:['barroco','siglo XVII'],
+   desc:'Claroscuro holandés. Negro marfil y tierra de sombra tostada en las profundidades, ocre amarillo cálido en medios tonos, blanco de plomo envejecido en las luces. Sus "dorados" son ocres ámbar, no amarillos puros.',
+   colors:['#150d08','#200e08','#7a5025','#c8922a','#d4a050','#f0ead8','#6a4020','#3d2008'],
+   w:[8,12,16,22,18,10,9,5]},
+  {name:'Claude Monet',period:'Impresionismo, 1870s-1920s',tags:['impresionismo','siglo XIX','siglo XX'],
+   desc:'Azules y verdes fríos con vibraciones de color. Pinceladas que capturan la luz cambiante sobre el agua.',
+   colors:['#5b8fa8','#8ab4c8','#c8d8a0','#7a9e60','#d4c890','#a08850','#6870c0','#d0a860'],
+   w:[20,18,12,14,10,8,12,6]},
+  {name:'Paul Cézanne',period:'Post-impresionismo, 1880s-1900s',tags:['post-impresionismo','siglo XIX'],
+   desc:'Paleta estructurada de azules, verdes apagados y tonos tierra. Fundamentos del cubismo moderno.',
+   colors:['#4a6888','#789878','#c8a860','#9a7848','#d0b880','#6a5038','#8890b8','#a8b890'],
+   w:[16,14,18,14,15,8,9,6]},
+  {name:'Henri Matisse',period:'Fauvismo, 1900s-1940s',tags:['fauvismo','siglo XX'],
+   desc:'Colores puros y saturados sin mezcla. Rojo, azul, verde y naranja en oposición directa y decorativa.',
+   colors:['#c82020','#1840a0','#20a040','#e88020','#e040a0','#20c0c0','#e0e020','#8020c0'],
+   w:[22,20,15,14,10,8,7,4]},
+  {name:'Pablo Picasso',period:'Cubismo / Periodo Azul, 1901-1950s',tags:['cubismo','siglo XX'],
+   desc:'Periodo Azul: monocromía melancólica. Periodo Rosa: carnaciones. Cubismo: terrosos y grises geométricos.',
+   colors:['#1a3060','#3060a0','#80a8d0','#c8a870','#d08050','#8a6040','#606060','#404040'],
+   w:[24,20,14,12,10,8,7,5]},
+  {name:'Frida Kahlo',period:'Surrealismo/Folk, 1930s-1950s',tags:['surrealismo','siglo XX','folk'],
+   desc:'Arte popular mexicano. Colores vibrantes y saturados: rojo, verde, amarillo, naranja brillante.',
+   colors:['#c02020','#20a030','#e0b020','#c06020','#e06080','#6020a0','#20c0a0','#e04020'],
+   w:[20,16,15,14,12,10,8,5]},
+  {name:'Mark Rothko',period:'Expresionismo abstracto, 1950s-1960s',tags:['abstracto','siglo XX'],
+   desc:'Grandes campos de color difuminados. Rojos, naranjas y negros que evocan trascendencia interior.',
+   colors:['#8a1a10','#c03020','#d06030','#e09050','#1a1a2a','#3a3050','#6a4020','#c08060'],
+   w:[8,22,24,16,12,10,6,2]},
+  {name:'Wassily Kandinsky',period:'Expresionismo abstracto, 1910s-1940s',tags:['abstracto','siglo XX'],
+   desc:'Color como expresión espiritual. Azul celestial, amarillo agresivo, rojo cálido, negro como silencio.',
+   colors:['#1030a0','#e0c020','#c02020','#080808','#f0f0f0','#20a040','#e06020','#8020c0'],
+   w:[20,22,18,6,5,14,12,3]},
+  {name:"Georgia O'Keeffe",period:'Modernismo americano, 1920s-1970s',tags:['modernismo','siglo XX'],
+   desc:'Desierto de Nuevo México: huesos blancos, cielos azules, flores amplificadas en rosas y rojos suaves.',
+   colors:['#e8d0b8','#c8a080','#d07050','#80a8c0','#506888','#c05040','#e8c0a0','#a08060'],
+   w:[20,16,15,12,12,14,8,3]},
+  {name:'Paul Gauguin',period:'Post-impresionismo/Simbolismo, 1880s-1900s',tags:['post-impresionismo','siglo XIX'],
+   desc:'Paleta exótica de Tahití: amarillos tropicales, verdes jungla, carmines y tierra de sombra.',
+   colors:['#d4a030','#8a6030','#c83040','#306040','#5888a8','#e0c060','#a03050','#204830'],
+   w:[22,12,16,18,12,12,6,2]},
+  {name:'Gustav Klimt',period:'Modernismo/Art Nouveau, 1890s-1910s',tags:['art nouveau','siglo XIX','siglo XX'],
+   desc:'Oro laminado y patrones ornamentales. Dorados, verdes jade y carnaciones en mosaico decorativo.',
+   colors:['#c8a030','#e0c050','#906020','#5a8060','#a07848','#d4b060','#3a5a30','#c89050'],
+   w:[25,22,14,12,8,12,5,2]},
+  {name:'Edward Hopper',period:'Realismo americano, 1920s-1960s',tags:['realismo','siglo XX'],
+   desc:'Luz dura y solitaria. Amarillos de interiores contra azules nocturnos y grises urbanos.',
+   colors:['#c8a840','#e8d080','#305878','#4878a0','#c07038','#e8c070','#606060','#304050'],
+   w:[16,18,20,16,12,12,5,1]},
+  {name:'Salvador Dalí',period:'Surrealismo, 1930s-1970s',tags:['surrealismo','siglo XX'],
+   desc:'Cielos metafísicos mediterráneos. Azul ultramar, ocres dorados, sombra tostada y carmín onírico.',
+   colors:['#1848a8','#4878d0','#c89830','#d4a040','#8a5020','#c04030','#e0c860','#206080'],
+   w:[22,18,12,16,12,10,8,2]},
+  {name:'Joan Miró',period:'Surrealismo/Abstracto, 1920s-1970s',tags:['surrealismo','abstracto','siglo XX'],
+   desc:'Primarios puros sobre fondo blanco. Rojo, azul, amarillo y negro con formas orgánicas llenas de vida.',
+   colors:['#e02020','#2040c0','#e0c020','#080808','#f8f8f8','#20a040','#e06020','#a020a0'],
+   w:[22,20,18,8,5,14,10,3]},
+  {name:'Caravaggio',period:'Barroco, 1590s-1610s',tags:['barroco','siglo XVI','siglo XVII'],
+   desc:'Tenebrismo extremo. Negro marfil y tierra de sombra para las oscuridades densas, ocre amarillo y bermellón en carnaciones, azul ultramar oscuro en fondos, blanco de plomo cálido en las luces más duras.',
+   colors:['#1a0f0a','#1f1108','#4a2510','#8a4818','#c8922a','#d4a060','#c04030','#0d1520'],
+   w:[5,8,15,22,24,14,10,2]},
+  {name:'J.M.W. Turner',period:'Romanticismo, 1800s-1840s',tags:['romanticismo','siglo XIX'],
+   desc:'Luz atmosférica y vapor. Amarillos luminosos, naranjas de puesta de sol, difuminados azulados.',
+   colors:['#e8d060','#d4a030','#e08030','#c06020','#a0b8d0','#708098','#e8e0c0','#304860'],
+   w:[20,16,16,14,10,8,14,2]},
+  {name:'Piet Mondrian',period:'Neoplasticismo, 1910s-1940s',tags:['abstracto','siglo XX'],
+   desc:'Reducción máxima: solo primarios puros, negro y blanco. Rojo, amarillo, azul en grillas ortogonales.',
+   colors:['#c82020','#e0c020','#1840a0','#080808','#f0f0f0','#c0c0c0','#e04020','#2060b0'],
+   w:[24,20,22,8,5,7,8,6]},
+  {name:'Diego Velázquez',period:'Barroco español, 1620s-1660s',tags:['barroco','siglo XVII'],
+   desc:'Elegancia austera de la corte española. Grises Payne (negro marfil + azul ultramar) para terciopelos y sombras, blanco de plomo cálido en luces, ocre amarillo sutil y carmín de cochinilla en detalles reales.',
+   colors:['#1c2540','#585860','#888890','#f5f0e8','#a83028','#c8922a','#16213a','#706050'],
+   w:[14,16,20,16,12,14,6,2]},
+];
+ARTISTS.forEach((a,i)=>a.id=i);
+
+let activeTag='todos';
+
+// ── Artist primary selection state ────────────
+const artistPrimary = {};
+
+function setPrimary(aid, idx) {
+  artistPrimary[aid] = (artistPrimary[aid] === idx) ? null : idx;
+  recalcArtistWeights(aid);
+}
+
+function recalcArtistWeights(aid) {
+  const a = ARTISTS[aid];
+  const primaryIdx = artistPrimary[aid];
+  let weights = [...a.w];
+
+  if (primaryIdx !== null && primaryIdx !== undefined) {
+    const others = weights.reduce((s,v,i) => i===primaryIdx ? s : s+v, 0);
+    const newPrimary = 40;
+    const scale = (100 - newPrimary) / others;
+    weights = weights.map((v,i) => i===primaryIdx ? newPrimary : Math.round(v*scale));
+    const sum = weights.reduce((acc,b) => acc+b, 0);
+    weights[primaryIdx] += 100 - sum;
+  }
+
+  const sorted = [...weights].map((v,i) => ({v,i})).sort((a,b) => b.v-a.v);
+  const roles = {};
+  roles[sorted[0].i] = 'P';
+  roles[sorted[1].i] = 'S';
+  roles[sorted[2].i] = 'T';
+
+  weights.forEach((w,i) => {
+    const pctEl = document.getElementById(`pct-${aid}-${i}`);
+    if (pctEl) pctEl.textContent = w + '%';
+    const roleEl = document.getElementById(`role-${aid}-${i}`);
+    if (roleEl) {
+      roleEl.textContent = roles[i] || '';
+      roleEl.style.opacity = roles[i] ? '1' : '0';
+      roleEl.className = 'a-swatch-role' + (roles[i]==='P' ? ' is-primary' : '');
+    }
+  });
+
+  const bar = document.querySelector(`.pct-bar[data-artist-id="${aid}"]`);
+  if (bar) {
+    bar.querySelectorAll('.pct-seg').forEach((seg,i) => {
+      seg.style.flex = weights[i];
+      seg.title = weights[i] + '%';
+      seg.classList.toggle('primary-seg', i===primaryIdx);
+    });
+  }
+}
+
+function computeInitialRoles(w) {
+  const sorted = [...w].map((v,i) => ({v,i})).sort((a,b) => b.v-a.v);
+  const roles = {};
+  roles[sorted[0].i] = 'P';
+  roles[sorted[1].i] = 'S';
+  roles[sorted[2].i] = 'T';
+  return roles;
+}
+
+function renderArtists(){
+  const filtered=activeTag==='todos'?ARTISTS:ARTISTS.filter(a=>a.tags.includes(activeTag));
+  let toRender=[...filtered];
+  const hasPalette=currentPalette.length>0;
+  if(hasPalette){
+    toRender=toRender.map(a=>({...a,score:paletteSimilarity(currentPalette,a.colors)}))
+      .sort((a,b)=>b.score-a.score);
+  }
+  const sortLabel=document.getElementById('sortLabel');
+  if(sortLabel) sortLabel.textContent=hasPalette?'Ordenados por similitud con tu paleta':'';
+
+  document.getElementById('artistsGrid').innerHTML=toRender.map(a=>{
+    const w = a.w;
+    const roles = computeInitialRoles(w);
+
+    const swatchCols = a.colors.map((c,i)=>{
+      const pn=getNearestPaint(c);
+      const roleLabel = roles[i] || '';
+      return `<div class="a-sw-col">
+        <div class="a-swatch" style="background:${c}" onclick="copyHex('${c}')">
+          <div class="a-swatch-overlay"><div class="a-swatch-overlay-text">${pn}</div></div>
+        </div>
+        <div class="a-swatch-hex">${c}</div>
+        <div class="a-swatch-name">${pn}</div>
+        <div class="a-swatch-pct" id="pct-${a.id}-${i}">${w[i]}%</div>
+        <div class="a-swatch-role${roleLabel==='P'?' is-primary':''}" id="role-${a.id}-${i}" style="opacity:${roleLabel?'1':'0'}">${roleLabel}</div>
+      </div>`;
+    }).join('');
+
+    const pctBar = `<div class="pct-bar" data-artist-id="${a.id}">
+      ${a.colors.map((c,i)=>`<div class="pct-seg${i===artistPrimary[a.id]?' primary-seg':''}"
+        data-idx="${i}" data-aid="${a.id}"
+        style="flex:${w[i]};background:${c}"
+        title="${w[i]}%"
+        onclick="setPrimary(${a.id},${i})"></div>`).join('')}
+    </div>`;
+
+    return `<div class="artist-card">
+      <div class="artist-card-header">
+        <div class="artist-card-top">
+          <div>
+            <div class="artist-card-name">${a.name}</div>
+            <div class="artist-card-period">${a.period}</div>
+          </div>
+          <div class="artist-card-meta">
+            ${a.score!==undefined?`<span class="match-badge">${a.score}% similar</span>`:''}
+            <button class="artist-use-btn" onclick="addAllToCustom(${a.id})">＋ usar paleta</button>
+            <button class="artist-vallejo-btn" id="vallejoBtn-${a.id}" onclick="toggleArtistVallejo(${a.id})">Pinturas ▾</button>
+            <a class="artist-wiki-btn" href="https://en.wikipedia.org/wiki/${encodeURIComponent(a.name)}" target="_blank" rel="noopener noreferrer">Wikipedia →</a>
+          </div>
+        </div>
+        <div class="artist-card-desc">${a.desc}</div>
+      </div>
+      <div class="artist-swatches">${swatchCols}</div>
+      ${pctBar}
+      <div class="artist-vallejo-panel" id="artistVallejo-${a.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+function buildFilters(){
+  const tags=new Set(['todos']);
+  ARTISTS.forEach(a=>a.tags.forEach(t=>tags.add(t)));
+  const bar=document.getElementById('filterBar');
+  const btns=[...tags].map(t=>`<button class="filter-btn${t==='todos'?' active':''}" onclick="setFilter('${t}')">${t}</button>`).join('');
+  bar.insertAdjacentHTML('afterbegin',btns);
+}
+function setFilter(tag){
+  activeTag=tag;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.textContent===tag));
+  renderArtists();
+}
+
+// ══════════════════════════════════════════════
+// SECTION 3 — CUSTOM PALETTE
+// ══════════════════════════════════════════════
+let customColors = JSON.parse(localStorage.getItem('custom_palette') || '[]');
+let selectedIdx=new Set();
+
+function saveCustomPalette(){ localStorage.setItem('custom_palette', JSON.stringify(customColors)); }
+
+function addToCustom(hex){
+  if(customColors.length>=16){showToast('Paleta llena (máx. 16)');return;}
+  if(!customColors.includes(hex)){customColors.push(hex);saveCustomPalette();renderCustomPalette();syncPaletteStrip();showToast(`Añadido: ${hex}`);}
+  else{showToast('Ya está en la paleta');}
+}
+function addAllToCustom(artistId){
+  const a=ARTISTS[artistId];
+  let added=0;
+  a.colors.forEach(c=>{if(customColors.length<16&&!customColors.includes(c)){customColors.push(c);added++;}});
+  saveCustomPalette();renderCustomPalette();syncPaletteStrip();
+  showToast(added>0?`${added} colores añadidos de ${a.name}`:'Ya están en la paleta');
+}
+function removeFromCustom(i){
+  customColors.splice(i,1);
+  const ns=new Set();
+  selectedIdx.forEach(idx=>{if(idx<i)ns.add(idx);else if(idx>i)ns.add(idx-1);});
+  selectedIdx=ns;
+  saveCustomPalette();renderCustomPalette();syncPaletteStrip();
+}
+function toggleSelectCustom(i){
+  if(selectedIdx.has(i)){selectedIdx.delete(i);}
+  else{if(selectedIdx.size>=2){const f=[...selectedIdx][0];selectedIdx.delete(f);}selectedIdx.add(i);}
+  renderCustomPalette();
+}
+function mixSelected(){
+  if(selectedIdx.size!==2)return;
+  const[i1,i2]=[...selectedIdx].sort((a,b)=>a-b);
+  const c1=customColors[i1],c2=customColors[i2];
+  const inserts=[mix(c1,c2,0.25),mix(c1,c2,0.5),mix(c1,c2,0.75)];
+  customColors.splice(i2+1,0,...inserts);
+  selectedIdx.clear();
+  saveCustomPalette();renderCustomPalette();syncPaletteStrip();
+  showToast('3 mezclas intermedias añadidas');
+}
+function clearCustomPalette(){
+  customColors=[];selectedIdx.clear();saveCustomPalette();renderCustomPalette();syncPaletteStrip();
+}
+function exportCustom(){
+  if(!customColors.length){showToast('La paleta está vacía');return;}
+  const txt=customColors.join(', ');
+  navigator.clipboard.writeText(txt).catch(()=>{
+    let ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+  showToast(`${customColors.length} colores copiados`);
+}
+function renderCustomPalette(){
+  const area=document.getElementById('customArea');
+  if(customColors.length===0){
+    area.innerHTML=`<div class="custom-empty">
+      Haz clic en <strong>＋ añadir</strong> bajo cualquier swatch (sección 1)<br>
+      o en <strong>＋ usar paleta</strong> en la tarjeta de un artista
+      <div style="display:flex;gap:0.6rem;justify-content:center;margin-top:0.9rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="switchTab('teoria')">→ Ir a Color</button>
+        <button class="btn-secondary" onclick="switchTab('artistas')">→ Explorar artistas</button>
+      </div>
+    </div>`;
+  } else {
+    area.innerHTML=`<div class="custom-swatches">${
+      customColors.map((c,i)=>{
+        const pn=getNearestPaint(c);
+        const emo=getColorEmotion(c);
+        return`<div class="cp-sw-wrap">
+          <div class="cp-swatch${selectedIdx.has(i)?' selected':''}"
+               style="background:${c}" title="${pn} — ${c}"
+               onclick="toggleSelectCustom(${i})"
+               ondblclick="openSwatchEditor(${i})"></div>
+          <div class="cp-remove" onclick="removeFromCustom(${i})">✕</div>
+          <div class="cp-hex">${c}</div>
+          <div class="cp-name">${pn}</div>
+          <div class="cp-emotion">${emo.emoji} ${emo.label}</div>
+        </div>`;
+      }).join('')
+    }</div>`;
+  }
+  const btn=document.getElementById('mixBtn');
+  btn.disabled=selectedIdx.size!==2;
+  const hint=document.getElementById('selHint');
+  if(customColors.length===0) hint.textContent='';
+  else if(selectedIdx.size===0) hint.textContent='Haz clic en 2 swatches para mezclar';
+  else if(selectedIdx.size===1) hint.textContent='Selecciona 1 más para mezclar';
+  else hint.textContent='Listo — haz clic en Mezclar';
+}
+
+// ══════════════════════════════════════════════
+// SECTION 4 — IMAGE PALETTE EXTRACTION
+// ══════════════════════════════════════════════
+let extractedColors = [];
+let currentImageData = null;
+
+function setupUploadZone() {
+  const zone  = document.getElementById('uploadZone');
+  const input = document.getElementById('imgInput');
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) loadImageFile(f);
+  });
+  input.addEventListener('change', e => { if (e.target.files[0]) loadImageFile(e.target.files[0]); });
+}
+
+function loadImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      document.getElementById('extractThumb').src = ev.target.result;
+      document.getElementById('extractInfo').textContent =
+        `${img.naturalWidth} × ${img.naturalHeight} px  ·  ${file.name}`;
+      document.getElementById('uploadZone').style.display  = 'none';
+      document.getElementById('extractResult').style.display = 'flex';
+
+      // Downsample to max 250px for performance
+      const canvas = document.getElementById('imgCanvas');
+      const scale  = Math.min(1, 250 / Math.max(img.naturalWidth, img.naturalHeight));
+      canvas.width  = Math.round(img.naturalWidth  * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      currentImageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      reExtract();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetUpload() {
+  currentImageData = null; extractedColors = [];
+  document.getElementById('uploadZone').style.display  = 'block';
+  document.getElementById('extractResult').style.display = 'none';
+  document.getElementById('extractSwatches').innerHTML  = '';
+  document.getElementById('extractRelated').innerHTML   = '';
+  document.getElementById('imgInput').value = '';
+}
+
+function reExtract() {
+  if (!currentImageData) return;
+  const k = parseInt(document.getElementById('colorCount').value);
+  document.getElementById('extractProcessing').style.display = 'block';
+  // Defer to let the browser paint the "processing" text first
+  setTimeout(() => {
+    extractedColors = kMeansExtract(currentImageData, k);
+    // Sort by hue for a pleasing left-to-right display
+    extractedColors.sort((a, b) => hexToHsl(a)[0] - hexToHsl(b)[0]);
+    document.getElementById('extractProcessing').style.display = 'none';
+    renderExtracted();
+  }, 30);
+}
+
+function rgbDist(a, b) {
+  return Math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2);
+}
+
+function kMeansExtract(imageData, k) {
+  // Collect pixels (skip transparent)
+  const data = imageData.data, total = data.length / 4;
+  const step = Math.max(1, Math.floor(total / 5000));
+  const pixels = [];
+  for (let i = 0; i < total; i += step) {
+    const o = i * 4;
+    if (data[o+3] > 128) pixels.push([data[o], data[o+1], data[o+2]]);
+  }
+  if (pixels.length < k) return pixels.map(p => rgbToHex(p[0],p[1],p[2]));
+
+  // Init centroids: spread evenly across luminance-sorted pixels
+  const sorted = [...pixels].sort((a,b) => (b[0]+b[1]+b[2]) - (a[0]+a[1]+a[2]));
+  const stride = Math.floor(sorted.length / k);
+  let centroids = Array.from({length:k}, (_,i) => [...sorted[i*stride]]);
+
+  for (let iter = 0; iter < 30; iter++) {
+    const sums   = Array.from({length:k}, () => [0,0,0]);
+    const counts = new Array(k).fill(0);
+
+    for (const p of pixels) {
+      let minD = Infinity, minI = 0;
+      for (let i = 0; i < k; i++) {
+        const d = rgbDist(p, centroids[i]);
+        if (d < minD) { minD = d; minI = i; }
+      }
+      sums[minI][0] += p[0]; sums[minI][1] += p[1]; sums[minI][2] += p[2];
+      counts[minI]++;
+    }
+
+    let changed = false;
+    for (let i = 0; i < k; i++) {
+      if (!counts[i]) continue;
+      const nc = sums[i].map(v => Math.round(v / counts[i]));
+      if (nc.some((v,j) => v !== centroids[i][j])) changed = true;
+      centroids[i] = nc;
+    }
+    if (!changed) break;
+  }
+  // Remove near-duplicate centroids (dist < 20)
+  const unique = [];
+  for (const c of centroids) {
+    if (!unique.some(u => rgbDist(u,c) < 20)) unique.push(c);
+  }
+  return unique.map(c => rgbToHex(c[0],c[1],c[2]));
+}
+
+function renderExtracted() {
+  const row = document.getElementById('extractSwatches');
+  row.innerHTML = '';
+  extractedColors.forEach(c => {
+    const paint = getNearestPaint(c);
+    const div = document.createElement('div');
+    div.className = 'swatch-wrap';
+    div.innerHTML = `
+      <div class="swatch" style="background:${c}" title="Copiar ${c}" onclick="copyHex('${c}')">
+        <div class="swatch-overlay"><div class="swatch-overlay-text">${paint}</div></div>
+      </div>
+      <div class="swatch-label">
+        <span class="swatch-hex">${c}</span>
+        <button class="swatch-add-btn" onclick="addToCustom('${c}')">＋ añadir</button>
+      </div>`;
+    row.appendChild(div);
+  });
+
+  // Show top 4 similar artists
+  if (extractedColors.length >= 2) {
+    const similar = [...ARTISTS]
+      .map(a => ({...a, score: paletteSimilarity(extractedColors, a.colors)}))
+      .sort((a,b) => b.score - a.score).slice(0, 4);
+    document.getElementById('extractRelated').innerHTML = `
+      <div class="extract-related-title">Artistas con paleta similar</div>
+      <div class="related-list">${similar.map(a=>`
+        <div class="related-item">
+          <div class="related-mini-swatches">
+            ${a.colors.slice(0,5).map(c=>`<div class="related-mini-sw" style="background:${c}"></div>`).join('')}
+          </div>
+          <div class="related-info">
+            <div class="related-name">${a.name}</div>
+            <div class="related-score">${a.score}% similar</div>
+          </div>
+        </div>`).join('')}
+      </div>`;
+  }
+
+  // Vallejo panel — sección 3
+  if (extractedColors.length) {
+    const vPanel3 = document.getElementById('vallejoPanelSec3');
+    vPanel3.style.display = 'block';
+    vPanel3.classList.remove('collapsed');
+    renderVallejoPanel(extractedColors, 'vallejoPanelSec3Body', document.getElementById('vallejoPanelSec3').dataset.brand || 'vallejo');
+  }
+}
+
+function addAllExtractedToCustom() {
+  if (!extractedColors.length) { showToast('Primero analiza una imagen'); return; }
+  extractedColors.forEach(c => addToCustom(c));
+  syncPaletteStrip();
+}
+
+// ══════════════════════════════════════════════
+// BASE COLOR PICKER (bcp)
+// ══════════════════════════════════════════════
+let bcpCurrentTab = 'manual';
+
+function bcpSetTab(tab, btn) {
+  bcpCurrentTab = tab;
+  document.querySelectorAll('.bcp-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.bcp-panel').forEach(p => p.classList.remove('active'));
+  const panelMap = { manual: 'bcpManual', hex: 'bcpHex', vallejo: 'bcpVallejo', oldholland: 'bcpOldholland' };
+  document.getElementById(panelMap[tab]).classList.add('active');
+  if (tab === 'vallejo' && !document.getElementById('bcpVallejoList').children.length) {
+    bcpBuildVallejoList('');
+  }
+  if (tab === 'oldholland' && !document.getElementById('bcpOHList').children.length) {
+    bcpBuildOHList('');
+  }
+}
+
+function hsvToHex(h, s, v) {
+  s /= 100; v /= 100;
+  const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); };
+  const x = n => Math.round(f(n) * 255).toString(16).padStart(2, '0');
+  return '#' + x(5) + x(3) + x(1);
+}
+
+function hexToHsv(hex) {
+  const [r, g, b] = hexToRgb(hex).map(x => x / 255);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + 6) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return [Math.round(h), Math.round(s * 100), Math.round(v * 100)];
+}
+
+function bcpUpdateHsv() {
+  const h = +document.getElementById('bcpHue').value;
+  const s = +document.getElementById('bcpSat').value;
+  const v = +document.getElementById('bcpVal').value;
+  document.getElementById('bcpHueNum').textContent = h + '°';
+  document.getElementById('bcpSatNum').textContent = s + '%';
+  document.getElementById('bcpValNum').textContent = v + '%';
+  const hueColor = `hsl(${h},100%,50%)`;
+  document.getElementById('bcpSatTrack').style.background = `linear-gradient(to right,#808080,${hueColor})`;
+  document.getElementById('bcpValTrack').style.background = `linear-gradient(to right,#000,${hueColor})`;
+  const hex = hsvToHex(h, s, v);
+  document.getElementById('bcpChosenSwatch').style.background = hex;
+  document.getElementById('bcpHexLabel').textContent = hex;
+  // Sync hidden input + other panels
+  document.getElementById('baseColor').value = hex;
+  document.getElementById('bcpSwatchHex').style.background = hex;
+  document.getElementById('bcpHexText').value = hex;
+  document.getElementById('bcpHexText').classList.remove('invalid');
+  if (document.getElementById('bcpSuggestPanel').style.display !== 'none') {
+    bcpShowSuggestions(hex);
+  }
+}
+
+function bcpToggleSuggest() {
+  const panel = document.getElementById('bcpSuggestPanel');
+  const visible = panel.style.display !== 'none';
+  panel.style.display = visible ? 'none' : 'block';
+  if (!visible) bcpShowSuggestions(document.getElementById('baseColor').value);
+}
+
+function bcpShowSuggestions(hex) {
+  const matches = getClosestVallejo(hex, 5);
+  document.getElementById('bcpSuggestList').innerHTML = matches.map(m =>
+    `<div class="bcp-suggest-item" onclick="bcpSyncColor('${m.hex}');generate();showToast('${m.code} · ${m.hex}')">
+      <div class="bcp-suggest-dot" style="background:${m.hex}"></div>
+      <div>
+        <div class="bcp-suggest-code">${m.code}</div>
+        <div class="bcp-suggest-name">${m.name}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function bcpSyncColor(hex) {
+  document.getElementById('baseColor').value = hex;
+  // Hex panel swatch + inputs
+  document.getElementById('bcpSwatchHex').style.background = hex;
+  document.getElementById('bcpHexLabel').textContent = hex;
+  document.getElementById('bcpHexText').value = hex;
+  document.getElementById('bcpHexText').classList.remove('invalid');
+  // HSV panel preview
+  document.getElementById('bcpChosenSwatch').style.background = hex;
+  // Sync HSV sliders (without triggering bcpUpdateHsv)
+  const [h, s, v] = hexToHsv(hex);
+  document.getElementById('bcpHue').value = h;
+  document.getElementById('bcpSat').value = s;
+  document.getElementById('bcpVal').value = v;
+  document.getElementById('bcpHueNum').textContent = h + '°';
+  document.getElementById('bcpSatNum').textContent = s + '%';
+  document.getElementById('bcpValNum').textContent = v + '%';
+  const hueColor = `hsl(${h},100%,50%)`;
+  document.getElementById('bcpSatTrack').style.background = `linear-gradient(to right,#808080,${hueColor})`;
+  document.getElementById('bcpValTrack').style.background = `linear-gradient(to right,#000,${hueColor})`;
+  // Refresh suggestions if visible
+  if (document.getElementById('bcpSuggestPanel').style.display !== 'none') {
+    bcpShowSuggestions(hex);
+  }
+}
+
+function bcpSyncFromHex(val) {
+  const input = document.getElementById('bcpHexText');
+  const errEl = document.getElementById('bcpHexError');
+  const hex = val.startsWith('#') ? val : '#' + val;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    input.classList.remove('invalid');
+    errEl.style.display = 'none';
+    bcpSyncColor(hex);
+    // generate() will be called by debouncedGenerate() from the oninput handler
+  } else {
+    input.classList.add('invalid');
+    errEl.style.display = val.length >= 4 ? 'block' : 'none';
+    if (/^#[0-9a-fA-F]{3,5}$/.test(hex)) {
+      document.getElementById('bcpSwatchHex').style.background = hex;
+    }
+  }
+}
+
+function bcpBuildVallejoList(filter) {
+  const list = document.getElementById('bcpVallejoList');
+  const q = filter.toLowerCase();
+  const items = VALLEJO_DB.filter(([code, name]) =>
+    !q || name.toLowerCase().includes(q) || code.includes(q)
+  );
+  const currentHex = document.getElementById('baseColor').value;
+  list.innerHTML = items.map(([code, name, hex]) => `
+    <div class="bcp-vallejo-item${hex === currentHex ? ' selected' : ''}" onclick="bcpPickVallejo(this,'${hex}','${code}')">
+      <div class="bcp-vallejo-dot" style="background:${hex}"></div>
+      <div class="bcp-vallejo-info">
+        <div class="bcp-vallejo-code">${code}</div>
+        <div class="bcp-vallejo-name">${name}</div>
+      </div>
+    </div>`).join('');
+}
+
+function bcpFilterVallejo(val) {
+  bcpBuildVallejoList(val);
+}
+
+function bcpPickVallejo(el, hex, code) {
+  bcpSyncColor(hex);
+  generate();
+  document.querySelectorAll('.bcp-vallejo-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  showToast(`Color base: ${code} · ${hex}`);
+}
+
+function bcpBuildOHList(filter) {
+  const list = document.getElementById('bcpOHList');
+  const q = filter.toLowerCase();
+  const currentHex = document.getElementById('baseColor').value;
+  const items = OLDHOLLAND_DB.filter(([code, name]) =>
+    !q || name.toLowerCase().includes(q) || code.toLowerCase().includes(q)
+  );
+  list.innerHTML = items.map(([code, name, hex]) => `
+    <div class="bcp-vallejo-item${hex === currentHex ? ' selected' : ''}" onclick="bcpPickOH(this,'${hex}','${code}')">
+      <div class="bcp-vallejo-dot" style="background:${hex}"></div>
+      <div class="bcp-vallejo-info">
+        <div class="bcp-vallejo-code">${code}</div>
+        <div class="bcp-vallejo-name">${name}</div>
+      </div>
+    </div>`).join('');
+}
+
+function bcpFilterOH(val) {
+  bcpBuildOHList(val);
+}
+
+function bcpPickOH(el, hex, code) {
+  bcpSyncColor(hex);
+  generate();
+  document.querySelectorAll('#bcpOHList .bcp-vallejo-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  showToast(`Color base: ${code} · ${hex}`);
+}
+
+// Init bcp on load
+(function(){
+  const initHex = document.getElementById('baseColor').value;
+  bcpSyncColor(initHex);
+})();
+
+// ══════════════════════════════════════════════
+// SWATCH EDITOR — Section 4 floating mini wheel
+// ══════════════════════════════════════════════
+let _seIdx = -1;         // index of the swatch being edited
+let _seColor = '';       // current color being previewed in editor
+let _seOrigColor = '';   // original color before edit
+
+function openSwatchEditor(idx) {
+  _seIdx = idx;
+  _seOrigColor = customColors[idx];
+  _seColor = _seOrigColor;
+  const overlay = document.getElementById('swatchEditor');
+  const preview = document.getElementById('sePreview');
+  preview.style.background = _seColor;
+  preview.classList.remove('flash');
+  buildMiniWheel(_seColor);
+  overlay.classList.add('open');
+}
+
+function closeSwatchEditor(confirm) {
+  const overlay = document.getElementById('swatchEditor');
+  if (confirm && _seIdx >= 0 && _seColor !== _seOrigColor) {
+    customColors[_seIdx] = _seColor;
+    saveCustomPalette();
+    // Flash the swatch before render
+    renderCustomPalette();
+    syncPaletteStrip();
+    const swatches = document.querySelectorAll('.cp-swatch');
+    if (swatches[_seIdx]) {
+      swatches[_seIdx].style.animation = 'none';
+      requestAnimationFrame(() => {
+        swatches[_seIdx].style.animation = 'swatchFlash 0.4s ease both';
+        setTimeout(() => { swatches[_seIdx].style.animation = ''; }, 450);
+      });
+    }
+  }
+  overlay.classList.remove('open');
+  _seIdx = -1;
+}
+
+function buildMiniWheel(currentHex) {
+  const svg = document.getElementById('miniWheelSvg');
+  svg.innerHTML = '';
+  const cx = 110, cy = 110, r1 = 58, r2 = 100;
+  const [curH] = hexToHsl(currentHex);
+
+  function mSvgEl(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+    return el;
+  }
+  function mAnnulus(cx, cy, r1, r2, startDeg, endDeg) {
+    const toRad = d => (d - 90) * Math.PI / 180;
+    const s1 = toRad(startDeg), e1 = toRad(endDeg);
+    const x1=cx+r2*Math.cos(s1),y1=cy+r2*Math.sin(s1);
+    const x2=cx+r2*Math.cos(e1),y2=cy+r2*Math.sin(e1);
+    const x3=cx+r1*Math.cos(e1),y3=cy+r1*Math.sin(e1);
+    const x4=cx+r1*Math.cos(s1),y4=cy+r1*Math.sin(s1);
+    const lg = endDeg - startDeg > 180 ? 1 : 0;
+    return `M${x1},${y1} A${r2},${r2} 0 ${lg},1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 ${lg},0 ${x4},${y4} Z`;
+  }
+
+  // BG
+  svg.appendChild(mSvgEl('circle', {cx,cy,r:r2+3,fill:'#101214'}));
+
+  for (let i = 0; i < 36; i++) {
+    const hue = i * 10;
+    const startDeg = hue - 5;
+    const endDeg = hue + 5;
+    let diff = Math.abs(hue - curH); if (diff > 180) diff = 360 - diff;
+    const isActive = diff < 8;
+    const segHex = hslToHex(hue, 72, 52);
+    const path = mSvgEl('path', {
+      d: mAnnulus(cx, cy, r1, r2, startDeg, endDeg),
+      fill: `hsl(${hue},70%,55%)`,
+      opacity: isActive ? '1' : '0.2',
+      stroke: '#08090b', 'stroke-width': '0.5',
+      style: 'cursor:pointer; transform-origin:110px 110px; transition:transform 0.15s ease,opacity 0.15s ease'
+    });
+    path.addEventListener('mouseenter', () => {
+      path.style.transform = 'scale(1.08)';
+      path.style.opacity = '1';
+    });
+    path.addEventListener('mouseleave', () => {
+      path.style.transform = '';
+      let d2 = Math.abs(hue - hexToHsl(_seColor)[0]); if (d2 > 180) d2 = 360 - d2;
+      path.style.opacity = d2 < 8 ? '1' : '0.2';
+    });
+    path.addEventListener('click', () => {
+      _seColor = segHex;
+      document.getElementById('sePreview').style.background = segHex;
+      // Rebuild active highlight
+      buildMiniWheel(segHex);
+    });
+    svg.appendChild(path);
+  }
+
+  // Inner circle
+  svg.appendChild(mSvgEl('circle', {cx,cy,r:r1,fill:'#08090b'}));
+  // Current color preview dot in center
+  svg.appendChild(mSvgEl('circle', {cx,cy,r:26,fill:currentHex,stroke:'rgba(255,255,255,0.15)','stroke-width':'1'}));
+}
+
+// Close on overlay click
+document.getElementById('swatchEditor').addEventListener('click', e => {
+  if (e.target === document.getElementById('swatchEditor')) closeSwatchEditor(false);
+});
+
+// ══════════════════════════════════════════════
+// SYSTEM PILL SELECTOR
+// ══════════════════════════════════════════════
+function selectSystem(btn) {
+  document.querySelectorAll('.sys-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('systemSelect').value = btn.dataset.val;
+  const val = btn.dataset.val;
+  document.getElementById('munsellControls').style.display = val === 'munsell' ? 'block' : 'none';
+  debouncedGenerate();
+}
+
+// ══════════════════════════════════════════════
+// EMOTION PANEL — SECTION 4
+// ══════════════════════════════════════════════
+function updateEmotionPanel() {
+  const panel = document.getElementById('emotionPanel');
+  const colorsEl = document.getElementById('emotionColors');
+  const summaryEl = document.getElementById('emotionSummary');
+
+  if (!customColors || customColors.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = 'block';
+
+  // Render per-color emotion tags
+  colorsEl.innerHTML = customColors.map(c => {
+    const e = getColorEmotion(c);
+    return `<div style="display:flex;align-items:center;gap:0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.35rem 0.6rem;">
+      <div style="width:18px;height:18px;border-radius:2px;background:${c};border:1px solid rgba(255,255,255,0.1);flex-shrink:0"></div>
+      <div>
+        <div style="font-size:0.65rem;font-weight:700;color:var(--accent)">${e.emoji} ${e.label}</div>
+        <div style="font-size:0.58rem;color:#878c97">${e.desc.split(' · ')[0]}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Generate summary text based on mix of emotions
+  if (customColors.length >= 2) {
+    const emotions = customColors.map(c => getColorEmotion(c));
+    const moods = emotions.map(e => e.mood);
+    const warmCount = moods.filter(m => m === 'warm').length;
+    const coolCount = moods.filter(m => m === 'cool').length;
+    const labels = [...new Set(emotions.map(e => e.label))];
+
+    let summary = `Tu paleta combina <strong>${labels.join(', ')}</strong>. `;
+
+    if (warmCount > 0 && coolCount > 0) {
+      summary += `La mezcla de tonos cálidos y fríos crea <strong>tensión dinámica</strong> — ideal para composiciones con energía y profundidad. `;
+    } else if (warmCount > coolCount) {
+      summary += `Predominan los tonos cálidos, transmitiendo <strong>energía, urgencia y cercanía</strong>. `;
+    } else if (coolCount > warmCount) {
+      summary += `Predominan los tonos fríos, comunicando <strong>calma, confianza y distancia</strong>. `;
+    }
+
+    if (customColors.length >= 3) {
+      summary += `Con ${customColors.length} colores, tu paleta tiene <strong>${customColors.length >= 5 ? 'alta complejidad' : 'buena riqueza'} expresiva</strong>.`;
+    }
+
+    summaryEl.innerHTML = summary;
+    summaryEl.style.display = 'block';
+  } else {
+    summaryEl.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════
+// PALETTE STRIP
+// ══════════════════════════════════════════════
+function syncPaletteStrip() {
+  const strip = document.getElementById('paletteStrip');
+  const swatchesEl = document.getElementById('stripSwatches');
+  swatchesEl.innerHTML = customColors.map(c =>
+    `<div class="strip-sw" style="background:${c}" title="${c}"></div>`
+  ).join('');
+  if (customColors.length > 0) {
+    strip.classList.add('visible');
+    document.body.classList.add('strip-visible');
+    document.querySelector('main').style.paddingBottom = '60px';
+  } else {
+    strip.classList.remove('visible');
+    document.body.classList.remove('strip-visible');
+    document.querySelector('main').style.paddingBottom = '';
+  }
+  updateEmotionPanel();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+// Note: systemSelect is now a hidden input — no 'change' event listener needed.
+// Munsell mode switch is handled inside selectSystem() and the old addEventListener
+// for Munsell init is kept below for the hidden input fallback.
+document.getElementById('systemSelect').addEventListener('change', function() {
+  if (this.value === 'munsell') {
+    mSetSlidersFromHex(document.getElementById('baseColor').value);
+  }
+});
+
+buildFilters();
+renderArtists();
+renderCustomPalette();
+syncPaletteStrip();
+setupUploadZone();
+
+// Init tab system — check hash or default to teoria
+(function() {
+  const hash = location.hash.replace('#', '');
+  const validTabs = Object.keys(TAB_MAP);
+  const startTab = validTabs.includes(hash) ? hash : 'teoria';
+  switchTab(startTab);
+})();
+</script>
+</body>
+</html>
